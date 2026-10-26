@@ -157,5 +157,8 @@
 [33.8s - 42.8s]  So like they will bring a, let's say, numbers of PDF and they will just come to teach us for maybe two to three times.
 [42.8s - 47.8s]  And then the next time is exam without actually explaining.
 - Mistakes noticed: Had difficulty transcribing Nigerian slangs like "ke", "her" intead of "our" also "can't" instead of "can" in {24.8s-33.8s}
+ English transcript quality on clip1: many lines correct, but it
+  struggled with Nigerian slang ("ke", "abi") and some words
+  ("on an" became "when I'm", "department" became "new classmate").
  
 
