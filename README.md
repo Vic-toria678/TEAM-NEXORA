@@ -14,9 +14,9 @@ Built for OPEN//BUILD 2026 (OSCA Ile-Ife Hacktoberfest challenge).
 
 
 
-> \*\*Status:\*\* Work in progress (Day 1 of 5). Items marked TODO are not
-
-> built or tested yet.
+> **Status:** Work in progress (Day 2 of 5). Transcription works
+> locally with Whisper; search, captions export and the interface are
+> not built yet. Items marked TODO are not done.
 
 
 
@@ -82,7 +82,7 @@ that. TODO: add your own comparison if you test one.
 
 |---|---|---|---|
 
-| Speech-to-text (baseline) | Whisper via faster-whisper | TODO: check | Installed, not yet run successfully |
+| Speech-to-text (baseline) | Whisper via faster-whisper | Installed, run successfully |
 
 | Speech-to-text (candidate) | Sunbird/asr-whisper-51-african-languages | TODO: check | To test |
 
@@ -132,33 +132,31 @@ TODO: finalise after the pipeline works. Current plan:
 
 
 
-\### Known issue on Windows
-
-On a Windows laptop with Smart App Control on, `faster-whisper` can
-
-fail with `ImportError: DLL load failed ... Device Guard`, because
-
-Windows blocks a compiled dependency (`av`). We chose not to turn off
-
-Smart App Control and are using WSL (Ubuntu on Windows) instead.
-
-TODO: confirm this works and document the exact steps.
+### Known issues
+- **Windows Smart App Control** blocked a compiled dependency (`av`)
+  with a "Device Guard" error. We did not turn it off. We run the
+  project inside WSL (Ubuntu on Windows) instead.
+- **PyAV 19** removed an argument that faster-whisper 1.2.1 still
+  uses, causing `open() got an unexpected keyword argument
+  'metadata_errors'`. Fix: `pip install "av<19"`.
+- **Language auto-detection** guessed Yoruba on our English clip and
+  produced garbled text. Forcing `language="en"` fixed it.
 
 
 
 \## Testing
-
-TODO: describe the clips you tested (without sharing private footage),
-
-which models you compared, and the results. Only report what you
-
-actually measured.
+Clip tested:A 118s long podcast video with 2 people talking with Nigerian accent.
+Model used: Whisper small via faster-whisper (Systran/faster-whisper-small)
+Result: Transcribed 18 lines completely correct out of 30 lines, so accuracy is above average.
 
 
 
 \## Known limitations
+ Whisper small via faster-whisper (Systran/faster-whisper-small)
 
-TODO: list honestly what does not work or is unfinished.
+Had difficulty transcribing Nigerian slangs(such as "ke" and "abi") and often mistaked some words for a totally different word( e.g. "on an" became "when I'm" and  "department" became "new classmate".)
+ 
+.
 
 
 
