@@ -160,5 +160,24 @@
  English transcript quality on clip1: many lines correct, but it
   struggled with Nigerian slang ("ke", "abi") and some words
   ("on an" became "when I'm", "department" became "new classmate").
+
+### Model comparison on clip1 (Nigerian-accented English, CPU only)
+	Whisper small (English forced)
+Correct words()           Printed words()
+Department                  New classmate
+On an                       When I'm
+Ke, Abi                     _missed_
+Lines correct:18/30, several errors
+
+         Sunbird 51-African-languages (faster-whisper)
+Correct words()              Printed words()
+Department                    Department 
+On an                         On an 
+Ke, Abi                       missed, Abiola
+Lines correct: 21/30, lesser errors
+
+Notes: Sunbird is a fine-tune of Whisper large-v3. It required a
+Hugging Face account, accepting access conditions and a token. Licence:
+apache-2.0 (per its model page; to confirm).
  
 
