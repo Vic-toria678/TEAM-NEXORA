@@ -142,3 +142,20 @@
 
 # make sure we can explain every part we submit.]
 
+## Oct 26 (Day 2)
+- Installed WSL (Ubuntu) to get around the Smart App Control block.
+- Installed faster-whisper in Ubuntu and ran transcribe.py on clip1.mp4
+  with the Whisper `small` model.
+ WSL (Ubuntu) works. faster-whisper 1.2.1 needed `av<19` (PyAV 19
+  removed an argument faster-whisper still uses).
+- Whisper `small`, auto-detect: guessed Yoruba on clip1 and produced
+  garbled text. Forcing `language="en"` fixed it.
+
+- Result: [20.8s - 21.8s]  I've cried many times.
+[21.8s - 23.8s]  I've never cried before.
+[24.8s - 33.8s]  Okay, so I think the stressful thing about my department is the fact that her lecturers are actually doing good, but they can't do better.
+[33.8s - 42.8s]  So like they will bring a, let's say, numbers of PDF and they will just come to teach us for maybe two to three times.
+[42.8s - 47.8s]  And then the next time is exam without actually explaining.
+- Mistakes noticed: Had difficulty transcribing Nigerian slangs like "ke", "her" intead of "our" also "can't" instead of "can" in {24.8s-33.8s}
+ 
+
