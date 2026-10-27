@@ -198,3 +198,13 @@ Got every single pidgin word right.
 [0.0s - 0.7s] this week is not for jokeing around e get as things be for country now serious conversations only anything wey you no fit discuss with a soldier no bring am come near me. I saw you yesterday, you were looking so fine. Send me money. You see this beauty, it's not just the glory of the Lord, money dey enter am.
 
 Aside the wrong spelling of joking, every other word was transcribed accurately
+### Mixed Pidgin and English clip (Sunbird, Oct 27)
+- Clip: `clip_pidgin_english.mp4`, [36s], [clear audio].
+- Run with `eng`: transcribed well, English-style spelling.
+- Run with `pcm`: transcribed well, but English words appeared in
+  Pidgin-style spelling. The words were correct, only the spelling
+  convention differed.
+- Checked by: [Victoria].
+- Implication: the user should be able to choose the language
+  setting. Search must be tested against both spellings.
+- Limitation: one clip only.
