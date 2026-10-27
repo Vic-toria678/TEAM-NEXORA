@@ -1,4 +1,4 @@
-TEAM-NEXORA
+# TEAM-NEXORA
 
 
 
@@ -6,7 +6,7 @@ A free, open-weight AI tool that helps video editors search raw footage
 
 by meaning and get captions, built for editors working with
 
-Nigerian-accented speech.
+Nigerian-accented speech and indigenous Nigerian languages.
 
 
 
@@ -20,7 +20,7 @@ Built for OPEN//BUILD 2026 (OSCA Ile-Ife Hacktoberfest challenge).
 
 
 
-\## The problem
+## The problem
 
 Video editors spend a lot of time scrubbing through long raw footage
 
@@ -36,7 +36,7 @@ dollars, and need footage uploaded to the cloud and most of the models are teste
 
 
 
-\*\*Intended users:\*\* video editors and content creators, especially in
+**Intended users:** video editors and content creators, especially in
 
 Nigeria, working with spoken footage such as interviews, events and
 
@@ -44,23 +44,23 @@ talks.
 
 
 
-\## Our solution
+## Our solution
 
 The tool will:
 
-1\. Transcribe a video using an open-weight speech-to-text model
+1. Transcribe a video using an open-weight speech-to-text model
 
 &#x20;  (TODO: confirm which one after testing).
 
-2\. Let the editor search the transcript by meaning and jump to the
+2. Let the editor search the transcript by meaning and jump to the
 
 &#x20;  matching timestamp (TODO: build).
 
-3\. Export captions as an `.srt` file (TODO: build if time allows).
+3. Export captions as an `.srt` file (TODO: build if time allows).
 
 
 
-\## Why not existing tools?
+## Why not existing tools?
 
 Tools like Descript, Premiere Pro, DaVinci Resolve and Opus Clip
 
@@ -76,7 +76,7 @@ that. TODO: add your own comparison if you test one.
 
 
 
-\## The AI models
+## The AI models
 
 | Role | Model | Licence | Status |
 
@@ -92,7 +92,7 @@ that. TODO: add your own comparison if you test one.
 
 
 
-\*\*Why these:\*\* The candidates are community fine-tunes of Whisper for
+**Why these:** The candidates are community fine-tunes of Whisper for
 
 African languages and Nigerian speech. We plan to compare them with
 
@@ -100,13 +100,13 @@ base Whisper on our own test clips and record the results here.
 
 
 
-\*\*Limitations:\*\* TODO: fill in after testing (accuracy on accents,
+**Limitations:** TODO: fill in after testing (accuracy on accents,
 
 noise, Pidgin, code-switching, speed).
 
 
 
-\## How it works
+## How it works
 
 Video -> transcript with timestamps -> search -> jump to moment.
 
@@ -114,21 +114,21 @@ TODO: add a simple diagram or screenshot once it works.
 
 
 
-\## Setup and run
+## Setup and run
 
 TODO: finalise after the pipeline works. Current plan:
 
-1\. Install Python 3.10+
+1. Install Python 3.10+
 
-2\. Clone this repository
+2. Clone this repository
 
-3\. Create and activate a virtual environment
+3. Create and activate a virtual environment
 
-4\. `pip install -r requirements.txt`
+4. `pip install -r requirements.txt`
 
-5\. Put a test video in a `clips/` folder (not included in the repo)
+5. Put a test video in a `clips/` folder (not included in the repo)
 
-6\. `python transcribe.py`
+6. `python transcribe.py`
 
 
 
@@ -144,14 +144,14 @@ TODO: finalise after the pipeline works. Current plan:
 
 
 
-\## Testing
+## Testing
 Clip tested:A 118s long podcast video with 2 people talking with Nigerian accent.
 Model used: Whisper small via faster-whisper (Systran/faster-whisper-small)
 Result: Transcribed 18 lines completely correct out of 30 lines, so accuracy is above average.
 
 
 
-\## Known limitations
+## Known limitations
  Whisper small via faster-whisper (Systran/faster-whisper-small)
 
 Had difficulty transcribing Nigerian slangs(such as "ke" and "abi") and often mistaked some words for a totally different word( e.g. "on an" became "when I'm" and  "department" became "new classmate".)
@@ -160,7 +160,7 @@ Had difficulty transcribing Nigerian slangs(such as "ke" and "abi") and often mi
 
 
 
-\## Next steps
+## Next steps
 
 Ideas we may add later: captions export, finding highlight clips,
 
@@ -170,25 +170,25 @@ languages.
 
 
 
-\## Team
+## Team
 
-\- Oluwatoberu Victoria, Obafemi Awolowo University
+- Oluwatoberu Victoria, Obafemi Awolowo University
 
-\- Ajala Tolulope, Obafemi Awolowo University
-
-
+- Ajala Tolulope, Obafemi Awolowo University
 
 
 
-\## Acknowledgements
 
-\- faster-whisper and OpenAI Whisper (TODO: add licence and links)
 
-\- Sunbird and Axiveri models (TODO: add licence and links once checked)
+## Acknowledgements
 
-\- Existing tools were researched for comparison only.
+- faster-whisper and OpenAI Whisper (TODO: add licence and links)
 
-\- \*\*AI assistance:\*\* We used Claude (by Anthropic) to help plan the
+- Sunbird and Axiveri models (TODO: add licence and links once checked)
+
+- Existing tools were researched for comparison only.
+
+- **AI assistance:** We used Claude (by Anthropic) to help plan the
 
 &#x20; project, research existing tools and troubleshoot setup. TODO:
 
@@ -198,7 +198,7 @@ languages.
 
 
 
-\## Licence
+## Licence
 
 This project is released under the MIT licence (see `LICENSE`).
 
