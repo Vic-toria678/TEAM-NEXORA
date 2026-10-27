@@ -76,9 +76,7 @@ that. TODO: add your own comparison if you test one.
 | Role | Model | Licence | Status |
 |---|---|---|---|
 | Speech-to-text (main) | Sunbird/faster-whisper-51-african-languages (a fine-tune of Whisper large-v3 for 51 African languages) | apache-2.0 per its model page [confirm] | Working |
-
 | Speech-to-text (baseline) | Whisper small via faster-whisper (Systran/faster-whisper-small) | [TODO: check licence on its model page] | Tested, less accurate on our clips |
-
 | Search by meaning | TODO: choose an embedding model | TODO | Not started |
 
 **Why Sunbird:** on the same Nigerian-accented English clip, Whisper
