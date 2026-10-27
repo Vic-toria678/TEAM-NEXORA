@@ -164,6 +164,9 @@ apache-2.0 (per its model page; to confirm).
 - Checked by a Yoruba speaker who read the output].
 - Run time on CPU: 2mins
 - Limitation: one clip only. Not enough to claim general accuracy on Yoruba.
+**Yoruba (Sunbird), sample lines:**
+[0.0s - 0.9s] àgo lọ́nà ẹ̀jẹ̀ ìrọ́kọ mi, olólùfẹ́ ẹ̀ mi, àyànfẹ́ tèmí nìkan, káàbù, ẹ̀kú ogun àjayé, bàbá lójú ogun tí jẹ́ balógun, ọkùnrin wá, ọkùnrin wò, ọkùnrin wà wá owó, inú mi dùn, ayọ̀ mí kú, erú
+Just two words are wrong in these lines("kaabu" instead of "kaabo" and "owo" instead of "wowo")
 
 ### Igbo test (Sunbird, Oct 27)
 - Clip: one Igbo clip, [70s], [clean audio].
@@ -171,3 +174,6 @@ apache-2.0 (per its model page; to confirm).
 - Checked by: [ an Igbo speaker read the output].
 - Run time on CPU: [less than 2mins].
 - Limitation: one clip only. Not enough to claim general accuracy on Igbo.
+**Igbo(Sunbird), sample lines:**
+[2.6s - 3.2s]  m gịrị abụba. Ọ bụrụ na m anọọ ya, amalugo m ihe ya ga-eme. Ọkwa maka gị n'ụmụnne m ka m ji uwe n'ọrụ ebe a. Tupu na m anwụọ, ọgwụ agụụm ihe m ga-eme na mgbere otu a. Ọ maka adịghị
+
