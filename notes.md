@@ -217,3 +217,60 @@ Aside the wrong spelling of joking, every other word was transcribed accurately
 - Limitation: one clip only. Not enough to claim general accuracy on Hausa.
 **Hausa(Sunbird), sample lines:**
 [0.0s - 0.7s] a ta farko dama suma ta azamantakewa ta aure basu da matsala sai kwaya biyu darasin na farko shine babban laifin mace a wajen zaman aure don loksan da mace take tare da mijinta idan ranta ya ɓaci ba ta iya magana akwai matar da idan namiji ya gaya mata magana daya sai ta bashi amsa goma shatar da yawa gaske kuma idan namiji bai da ya laukira je zai ba shi ya dan kofa matashi ta shigo cikin lambarinsa da shi yadan zai yi aiki amma ko nami
+
+
+### Connecting the model to a web interface
+- Built a small local server (`app.py`, FastAPI + uvicorn) that loads
+  the Sunbird 51-African-languages model once at startup and exposes
+  one endpoint, `POST /api/transcribe`. It takes an audio/video file
+  and a language code (`eng`, `yor`, `ibo`, `hau`, `pcm`) and returns
+  a list of `{start, end, text}` lines.
+- Created a simple test page (`frontend/index.html`) with a file
+  picker, a language dropdown and a Transcribe button. It is a
+  placeholder for the real interface, which my teammate is building.
+  It will replace this page in the `frontend` folder.
+- Ran the server inside WSL (Ubuntu), because Windows Smart App
+  Control blocks a dependency on my laptop. Opened the page at
+  `http://localhost:8000` in the Windows browser.
+- Result: uploaded `clip1.mp4`, chose English, and the transcript
+  appeared on the page. The server log showed the request completed
+  (200 OK).
+
+### Problem: unreliable timestamps
+- The Sunbird model returned one segment per 30-second window, and
+  the segment start/end times were not usable (for example, a long
+  stretch of text shown as ending less than a second after it began).
+  That would break "jump to the moment" and SRT captions.
+- Word-level timestamps (`word_timestamps=True`) were accurate, so
+  the server now builds short caption-sized lines from the word
+  times (about 70 characters or 6 seconds at most, or at a sentence
+  end).
+- Check: [3.87s - 6.29s] How stressful is your department and exactly what makes it stressful?
+[7.11s - 9.03s] All right, how stressful is my department?
+
+Both lines were correct.
+
+[102.19s - 106.21s] You are made to give like three to four pages.
+[107.29s - 111.99s] They just want you to pour out what you understand and is, well, it's just
+[111.99s - 115.53s] for our benefit and I get it, but omo, it's really stressful, there it
+
+It recognized and transcribed the Nigerian slang "omo". Every other word is correct
+
+- Observed: at the very end of clip1 (about 117 to 119 s) the model
+  produced text that is not in the video ("Visit.", ".", "were.").
+  Confirmed by listening. This looks like the model inventing words
+  over trailing silence or noise. A few very short fragments also
+  appear where a long sentence was cut at the line-length limit.
+  Treated as a known limitation; not yet fixed.
+
+### Not done / not verified yet
+- Offline operation has not been tested with Wi-Fi off. Do not claim
+  it until it has been tested.
+- Only tested through the page with English on one clip so far.
+
+- Search and SRT export are not built yet.
+
+### AI assistance
+- Used Claude to help plan the project, research existing tools,
+  troubleshoot setup errors, and write the server and test page.
+ I [We] ran, tested and edited this code and can explain how it works.
