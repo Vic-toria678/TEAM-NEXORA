@@ -177,3 +177,14 @@ Just two words are wrong in these lines("kaabu" instead of "kaabo" and "owo" ins
 **Igbo(Sunbird), sample lines:**
 [2.6s - 3.2s]  m gịrị abụba. Ọ bụrụ na m anọọ ya, amalugo m ihe ya ga-eme. Ọkwa maka gị n'ụmụnne m ka m ji uwe n'ọrụ ebe a. Tupu na m anwụọ, ọgwụ agụụm ihe m ga-eme na mgbere otu a. Ọ maka adịghị
 
+### Pidgin test (Sunbird, Oct 27)
+- Clip: one Yoruba clip, [38s], [audio and background music].
+- Result: transcribed accurately 
+- Checked by a Pidgin speaker who read the output
+- Run time on CPU: 2mins
+- Limitation: one clip only. Not enough to claim general accuracy on Pidgin.
+**Pidgin(Sunbird), sample lines:**
+[0.0s - 0.9s]  be girl you wey be girl wey dey do things for me for free you no know the plans wey i get for you i have great plans for you and when dem go manifest there i go beautify you i go upgrade your standard go put you for place wey be say nobody go fit touch you you go dey float you go dey fly dey go na the plans wey i get 
+
+Got every single pidgin word right.
+
