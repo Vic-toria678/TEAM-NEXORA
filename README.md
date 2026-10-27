@@ -173,12 +173,10 @@ One clip per case is not enough to claim general accuracy.
 - Results come from single clips and are not statistically reliable.
 - Hausa and Igbo output was not checked by a speaker.
 - Transcription is slower than real time on a CPU.
-- Offline use has not been tested yet. [Update after you test it with
-  Wi-Fi off.]
 - The final interface, search and SRT export are not built yet.
 
 
-
+After the one-time model download, transcription ran with Wi-Fi turned off (tested twice on Oct27). It works offline.
 ## Next steps
 
 Ideas we may add later: captions export, finding highlight clips,

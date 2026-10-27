@@ -263,11 +263,12 @@ It recognized and transcribed the Nigerian slang "omo". Every other word is corr
   appear where a long sentence was cut at the line-length limit.
   Treated as a known limitation; not yet fixed.
 
-### Not done / not verified yet
-- Offline operation has not been tested with Wi-Fi off. Do not claim
-  it until it has been tested.
-- Only tested through the page with English on one clip so far.
+### Offline test 
+- Started the server with HF_HUB_OFFLINE=1, turned Wi-Fi off, and
+  confirmed no connection (ping failed). Transcribed [38s, Hausa]
+  through the page: [worked,].
 
+### Not done / not verified yet
 - Search and SRT export are not built yet.
 
 ### AI assistance
