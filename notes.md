@@ -178,7 +178,7 @@ Just two words are wrong in these lines("kaabu" instead of "kaabo" and "owo" ins
 [2.6s - 3.2s]  m gịrị abụba. Ọ bụrụ na m anọọ ya, amalugo m ihe ya ga-eme. Ọkwa maka gị n'ụmụnne m ka m ji uwe n'ọrụ ebe a. Tupu na m anwụọ, ọgwụ agụụm ihe m ga-eme na mgbere otu a. Ọ maka adịghị
 
 ### Pidgin test (Sunbird, Oct 27)
-- Clip: one Yoruba clip, [38s], [audio and background music].
+- Clip: one Pidgin clip, [38s], [audio and background music].
 - Result: transcribed accurately 
 - Checked by a Pidgin speaker who read the output
 - Run time on CPU: 2mins
@@ -188,3 +188,13 @@ Just two words are wrong in these lines("kaabu" instead of "kaabo" and "owo" ins
 
 Got every single pidgin word right.
 
+# Pidgin+Englishtest (Sunbird, Oct 27)
+- Clip: one Pidgin clip, [36s], [clear audio].
+- Result: transcribed accurately 
+- Checked by a Pidgin and English speaker who read the output
+- Run time on CPU: 2mins
+
+**Pidgin+English(Sunbird), sample lines:**
+[0.0s - 0.7s] this week is not for jokeing around e get as things be for country now serious conversations only anything wey you no fit discuss with a soldier no bring am come near me. I saw you yesterday, you were looking so fine. Send me money. You see this beauty, it's not just the glory of the Lord, money dey enter am.
+
+Aside the wrong spelling of joking, every other word was transcribed accurately
