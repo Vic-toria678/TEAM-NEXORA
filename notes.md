@@ -159,7 +159,7 @@ apache-2.0 (per its model page; to confirm).
 
 ###Oct 27, Day3
 ### Yoruba test (Sunbird, Oct 27)
-- Clip: one Yoruba clip, [l58s], [clean audio].
+- Clip: one Yoruba clip, [58s], [clean audio].
 - Result: transcribed accurately, tone marks correct on the lines we checked
 - Checked by a Yoruba speaker who read the output].
 - Run time on CPU: 2mins
@@ -208,3 +208,12 @@ Aside the wrong spelling of joking, every other word was transcribed accurately
 - Implication: the user should be able to choose the language
   setting. Search must be tested against both spellings.
 - Limitation: one clip only.
+
+### Hausa test (Sunbird, Oct 27)
+- Clip: one Hausa clip, [182s], [audio and background music].
+- Result: transcribed 
+- Not Checked by a Pidgin speaker 
+- Run time on CPU: 3mins
+- Limitation: one clip only. Not enough to claim general accuracy on Hausa.
+**Hausa(Sunbird), sample lines:**
+[0.0s - 0.7s] a ta farko dama suma ta azamantakewa ta aure basu da matsala sai kwaya biyu darasin na farko shine babban laifin mace a wajen zaman aure don loksan da mace take tare da mijinta idan ranta ya ɓaci ba ta iya magana akwai matar da idan namiji ya gaya mata magana daya sai ta bashi amsa goma shatar da yawa gaske kuma idan namiji bai da ya laukira je zai ba shi ya dan kofa matashi ta shigo cikin lambarinsa da shi yadan zai yi aiki amma ko nami
