@@ -156,3 +156,11 @@ apache-2.0 (per its model page; to confirm).
   `transcribe.py` output, including clip1.
 - Build the real meaning-based search (embeddings) to replace the
   prototype's mock search.
+
+###Oct 27, Day3
+### Yoruba test (Sunbird, Oct 27)
+- Clip: one Yoruba clip, [l58s], [clean audio].
+- Result: transcribed accurately, tone marks correct on the lines we checked
+- Checked by a Yoruba speaker who read the output].
+- Run time on CPU: 2mins
+- Limitation: one clip only. Not enough to claim general accuracy on Yoruba.
