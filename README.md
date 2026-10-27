@@ -32,7 +32,7 @@ dollars, and need footage uploaded to the cloud and most of the models are teste
 
 
 
-&#x20;As video editors, seeing long footage after shoots can be intimidating and not knowing where to start is a common issue, even after cutting clips, auto caption often transcribe wrongly as clients are nigerians with Nigerian accent. This is why we built..... d
+&#x20;As video editors, seeing long footage after shoots can be intimidating and not knowing where to start is a common issue, even after cutting clips, auto caption often transcribe wrongly as clients are nigerians with Nigerian accent. This is why we built **SABI**
 
 
 
