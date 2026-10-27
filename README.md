@@ -13,10 +13,10 @@ Nigerian-accented speech and indigenous Nigerian languages.
 Built for OPEN//BUILD 2026 (OSCA Ile-Ife Hacktoberfest challenge).
 
 
-
-> **Status:** Work in progress (Day 2 of 5). Transcription works
-> locally with Whisper; search, captions export and the interface are
-> not built yet. Items marked TODO are not done.
+> **Status:** Work in progress (Day 3 of 5). Transcription works
+> locally through a simple web page connected to a local server.
+> The final interface, search and captions export are not built yet.
+> Items marked TODO are not done.
 
 
 
@@ -45,20 +45,16 @@ talks.
 
 
 ## Our solution
-
-The tool will:
-
-1. Transcribe a video using an open-weight speech-to-text model
-
-&#x20;  (TODO: confirm which one after testing).
-
-2. Let the editor search the transcript by meaning and jump to the
-
-&#x20;  matching timestamp (TODO: build).
-
-3. Export captions as an `.srt` file (TODO: build if time allows).
-
-
+Current state:
+1. **Transcription (working):** a local server loads an open-weight
+   speech model and returns timestamped caption-sized lines for an
+   uploaded video or audio file, in a language the user selects.
+2. **Web page (placeholder):** a simple test page lets us upload a
+   file, choose a language and see the transcript. Our final
+   interface is being built separately and will replace it.
+3. **Search by meaning (TODO):** type a query and jump to the matching
+   moment.
+4. **SRT captions export (TODO).**
 
 ## Why not existing tools?
 
@@ -77,19 +73,25 @@ that. TODO: add your own comparison if you test one.
 
 
 ## The AI models
-
 | Role | Model | Licence | Status |
-
 |---|---|---|---|
+| Speech-to-text (main) | Sunbird/faster-whisper-51-african-languages (a fine-tune of Whisper large-v3 for 51 African languages) | apache-2.0 per its model page [confirm] | Working |
 
-| Speech-to-text (baseline) | Whisper via faster-whisper | Installed, run successfully |
-
-| Speech-to-text (candidate) | Sunbird/asr-whisper-51-african-languages | TODO: check | To test |
-
-| Speech-to-text (candidate) | NaijaVox (Axiveri) | TODO: check | To test |
+| Speech-to-text (baseline) | Whisper small via faster-whisper (Systran/faster-whisper-small) | [TODO: check licence on its model page] | Tested, less accurate on our clips |
 
 | Search by meaning | TODO: choose an embedding model | TODO | Not started |
 
+**Why Sunbird:** on the same Nigerian-accented English clip, Whisper
+small mishandled several words ("department" became "new classmate",
+"on an" became "when I'm") and missed Nigerian slang. The Sunbird
+model [got nearly all of these right: describe what you saw].
+
+**Access:** the Sunbird model is gated on Hugging Face. You need a
+free account, must accept its access conditions on the model page,
+and must log in with your own access token.
+
+**Speed:** on a laptop CPU with no GPU, one clip took about [3mins] to
+transcribe (118 seconds of audio).
 
 
 **Why these:** The candidates are community fine-tunes of Whisper for
@@ -100,37 +102,39 @@ base Whisper on our own test clips and record the results here.
 
 
 
-**Limitations:** TODO: fill in after testing (accuracy on accents,
-
-noise, Pidgin, code-switching, speed).
-
 
 
 ## How it works
+Browser page -> local server (`app.py`, FastAPI) -> faster-whisper
+with the Sunbird model 
 
-Video -> transcript with timestamps -> search -> jump to moment.
+The model returns long 30-second segments with unreliable segment
+times, so the server uses word-level timestamps to build short
+caption-sized lines (about 70 characters or 6 seconds at most).
 
-TODO: add a simple diagram or screenshot once it works.
-
+[106.21s] You are made to give like three to four pages.
+[107.29s - 111.99s] They just want you to pour out what you understand and is, well, it's just
+[111.99s - 115.53s] for our benefit and I get it, but omo, it's really stressful
 
 
 ## Setup and run
+These steps worked on Windows 11 using WSL (Ubuntu). On a machine
+where Windows does not block the packages, you can run the same
+steps directly on Windows.
 
-TODO: finalise after the pipeline works. Current plan:
+1. Install Python 3.10+ and create a virtual environment.
+2. Clone this repository.
+3. `pip install -r requirements.txt`
+4. Create a free Hugging Face account, accept the conditions on the
+   Sunbird model page, create an access token, and log in with
+   `hf auth login`. Never commit your token.
+5. Start the server from the project folder:
+   `python -m uvicorn app:app --port 8000`
+   The first start downloads the model and takes a while.
+6. Open http://localhost:8000, choose a clip, pick a language
+   (`eng`, `yor`, `ibo`, `hau`, `pcm`) and click Transcribe.
 
-1. Install Python 3.10+
-
-2. Clone this repository
-
-3. Create and activate a virtual environment
-
-4. `pip install -r requirements.txt`
-
-5. Put a test video in a `clips/` folder (not included in the repo)
-
-6. `python transcribe.py`
-
-
+Test clips are not included in the repository.
 
 ### Known issues
 - **Windows Smart App Control** blocked a compiled dependency (`av`)
@@ -142,21 +146,38 @@ TODO: finalise after the pipeline works. Current plan:
 - **Language auto-detection** guessed Yoruba on our English clip and
   produced garbled text. Forcing `language="en"` fixed it.
 
+- **Sunbird segment timestamps** were unreliable (one segment per
+  30 seconds). We rebuild lines from word timestamps instead.
+- **Invented text:** at the end of one clip the model produced words
+  that were not spoken ("Visit.", "were."). Captions must be reviewed
+  before use.
+- **Gated model:** reproducing the setup requires a Hugging Face
+  account, accepting the model conditions and a personal token.
 
 
 ## Testing
-Clip tested:A 118s long podcast video with 2 people talking with Nigerian accent.
-Model used: Whisper small via faster-whisper (Systran/faster-whisper-small)
-Result: Transcribed 18 lines completely correct out of 30 lines, so accuracy is above average.
+We tested the Sunbird model on one clip per case, through the
+command line and (for English) through the web page.
+
+| Case | Clips | Result | Checked by |
+|---|---|---|---|
+| English (Nigerian accent) | 1 | Almost everything correct, including words Whisper small got wrong | Victoria |
+| Yoruba | 1 | Accurate, tone marks correct | Victoria |
+| Igbo | 1 | Transcribed well **not checked** (no Igbo speaker available) | nobody |
+| Hausa | 1 | Transcribed, **not checked** (no Hausa speaker available) | nobody |
+| Pidgin + English mix | 1 | `eng` and `pcm` both transcribed well; `pcm` spelled English words the Pidgin way | Victoria |
+
+One clip per case is not enough to claim general accuracy.
 
 
 
 ## Known limitations
- Whisper small via faster-whisper (Systran/faster-whisper-small)
-
-Had difficulty transcribing Nigerian slangs(such as "ke" and "abi") and often mistaked some words for a totally different word( e.g. "on an" became "when I'm" and  "department" became "new classmate".)
- 
-.
+- Results come from single clips and are not statistically reliable.
+- Hausa and Igbo output was not checked by a speaker.
+- Transcription is slower than real time on a CPU.
+- Offline use has not been tested yet. [Update after you test it with
+  Wi-Fi off.]
+- The final interface, search and SRT export are not built yet.
 
 
 
@@ -182,19 +203,13 @@ languages.
 
 ## Acknowledgements
 
-- faster-whisper and OpenAI Whisper (TODO: add licence and links)
-
-- Sunbird and Axiveri models (TODO: add licence and links once checked)
-
-- Existing tools were researched for comparison only.
-
-- **AI assistance:** We used Claude (by Anthropic) to help plan the
-
-&#x20; project, research existing tools and troubleshoot setup. TODO:
-
-&#x20; update this if AI helps write code, and make sure we can explain
-
-&#x20; all submitted code.
+- Sunbird AI for the 51-African-languages Whisper fine-tune
+  (apache-2.0 per its model page; link: [add it]).
+- FastAPI, uvicorn and faster-whisper (licences: [TODO]).
+- AI assistance: we used Claude to help plan the project, research
+  existing tools, troubleshoot setup, and write the server and test
+  page. We ran, tested and edited the code and can explain it. [Add
+  anything your teammate used AI for.]
 
 
 
