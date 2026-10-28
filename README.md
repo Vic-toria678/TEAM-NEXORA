@@ -210,9 +210,8 @@ languages.
   (apache-2.0 per its model page; link: [add it]).
 - FastAPI, uvicorn and faster-whisper (licences: [TODO]).
 - AI assistance: we used Claude to help plan the project, research
-  existing tools, troubleshoot setup, and write the server and test
-  page. We ran, tested and edited the code and can explain it. [Add
-  anything your teammate used AI for.]
+  existing tools, Copilot to troubleshoot setup, and write the server and test
+  page. We ran, tested and edited the code and can explain it.
 
 
 
