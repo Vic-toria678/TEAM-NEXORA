@@ -447,3 +447,69 @@ file.
   embedding search, so describe it honestly during testing or a demo.
 - Stop the website and server separately with `Ctrl+C` in their
   respective terminals.
+
+## Oct 28 (Day 4)
+
+### Connecting the real interface to the model
+- Pulled my teammate's interface (Next.js, in `frontend/`). It
+  forwards `/api/transcribe` to the local model server at
+  `localhost:8000` (rewrite in `next.config.ts`), so no changes to
+  the server's API were needed.
+- Problem: `npm install` failed on the Windows drive (`/mnt/c`) with
+  network errors, then with `ENOTEMPTY: directory not empty, rename`.
+  Fix: copied the interface into Ubuntu's own home folder
+  (`~/frontend`) and ran `npm install` and `npm run dev` there.
+- Problem: the page failed with "Module not found: Can't resolve
+  '@/lib/utils'". Cause: the repo's Python `.gitignore` ignores
+  folders named `lib`, so `frontend/lib` was never pushed.
+  [Say how it was fixed, e.g. changed `.gitignore` and teammate
+  pushed the folder.]
+- Problem: transcription of a 22.7 MB clip failed with a 500 error.
+  Cause: Next.js limits proxied uploads to 10 MB by default and the
+  connection to the model server was reset. Fix: raised the upload
+  limit (`middlewareClientMaxBodySize`) and the proxy timeout in
+  `next.config.ts`.
+- Result: uploaded a clip in the interface, the model server logged
+  `POST /api/transcribe ... 200 OK`, and the transcript appeared.
+  Search and SRT export work in the interface. [Tested a 59s yoruba clip and imported into Capcut]
+
+### Speed on CPU (no GPU)
+- Checked for a GPU: none available (`nvidia-smi` not usable in WSL).
+  Laptop has 8 CPU threads.
+- Through the interface, a 36-second clip took a little over 3
+  minutes with the original settings, about 5 times the clip length.
+- Tested three settings of faster-whisper on one 59-second Yoruba
+  clip (Sunbird model, int8, CPU):
+
+| Setting | Run 1 | Run 2 |
+|---|---|---|
+| A) sequential, beam 5 | 487 s, 127 words | 1170 s, 89 words |
+| B) batched 4, beam 5 | 267 s, 92 words | 234 s, 92 words |
+| C) batched 4, beam 1 | 209 s, 86 words | 154 s, 86 words |
+
+- Setting A varied a lot between the two runs and I cannot explain
+  it. Treat exact timings as rough; batched decoding was clearly
+  faster than sequential in both runs.
+- Compared the saved text of A and C against the video. C read
+  better. [checked by Victoria, I understand
+  Yoruba.]
+- Switched `app.py` to batched decoding with beam size 1, batch
+  size 4 and all CPU threads. The same 36-second clip then took
+  under 3 minutes through the interface, still much slower than
+  real time.
+- A first benchmark run froze for over 15 minutes. The traceback
+  showed it waiting on a network lookup (`getaddrinfo`), not on
+  transcription. Fix: start scripts and the server with
+  `HF_HUB_OFFLINE=1` so they never contact the internet.
+
+### Limitations noted today
+- CPU-only transcription is slower than real time, so long videos
+  would take longer time on this laptop. A GPU or a hosted server is the
+  next step for long-form use.
+- Word counts differ between settings (86 to 127 on the same clip),
+  so accuracy should be checked, not assumed.
+
+### AI assistance
+- Used Claude to help with setup, debugging the errors above, the
+  speed experiments and the server code. We ran and tested everything and
+  can explain it.
