@@ -20,6 +20,13 @@ Built for OPEN//BUILD 2026 (OSCA Ile-Ife Hacktoberfest challenge).
 
 
 
+
+##/*tolu*/
+> **Status:** Transcription runs locally through FastAPI. The Next.js
+> frontend provides the landing page and editing workspace. Search uses
+> a local transcript-matching demo until a semantic-search backend is added.
+
+
 ## The problem
 
 Video editors spend a lot of time scrubbing through long raw footage

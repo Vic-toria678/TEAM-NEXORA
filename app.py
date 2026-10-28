@@ -3,7 +3,6 @@ import os
 import tempfile
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.staticfiles import StaticFiles
 from faster_whisper import WhisperModel
 from huggingface_hub import hf_hub_download
 
@@ -74,7 +73,3 @@ async def transcribe(file: UploadFile = File(...), language: str = Form("eng")):
         return results
     finally:
         os.remove(path)
-
-
-# Serves the page. Keep this last.
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
