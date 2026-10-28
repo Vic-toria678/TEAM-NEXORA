@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Captions, Check, ChevronDown, CircleAlert, FileAudio2, FileVideo2, LoaderCircle, LockKeyhole, Search, Sparkles, Upload, X } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MediaPlayer } from "@/components/workspace/media-player";
@@ -12,6 +12,7 @@ import { useProjectStore } from "@/stores/useProjectStore";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { transcribeMedia } from "@/lib/api";
 import { exportSrt } from "@/lib/utils";
+import { clearWorkspace, loadWorkspace, saveWorkspace } from "@/lib/workspace-storage";
 import type { LanguageCode } from "@/types";
 
 const languages: { code: LanguageCode; label: string }[] = [
@@ -29,17 +30,134 @@ export function Workspace() {
   const [dragging, setDragging] = useState(false);
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [storageReady, setStorageReady] = useState(false);
   const file = useProjectStore((state) => state.file);
   const language = useProjectStore((state) => state.language);
   const transcript = useProjectStore((state) => state.transcript);
   const status = useProjectStore((state) => state.status);
   const error = useProjectStore((state) => state.error);
+  const hasHydrated = useProjectStore((state) => state.hasHydrated);
+  const persistenceError = useProjectStore((state) => state.persistenceError);
+  const resumeAfterReload = useProjectStore((state) => state.resumeAfterReload);
   const setFile = useProjectStore((state) => state.setFile);
   const setLanguage = useProjectStore((state) => state.setLanguage);
   const setStatus = useProjectStore((state) => state.setStatus);
   const setError = useProjectStore((state) => state.setError);
   const setTranscript = useProjectStore((state) => state.setTranscript);
+  const restoreProject = useProjectStore((state) => state.restoreWorkspace);
+  const setHasHydrated = useProjectStore((state) => state.setHasHydrated);
+  const setPersistenceError = useProjectStore((state) => state.setPersistenceError);
+  const clearResumeAfterReload = useProjectStore((state) => state.clearResumeAfterReload);
   const clearSearch = useSearchStore((state) => state.clear);
+
+  useEffect(() => {
+    let active = true;
+    let timer: number | undefined;
+    let writeQueue = Promise.resolve();
+    let unsubscribeProject: (() => void) | undefined;
+    let unsubscribeSearch: (() => void) | undefined;
+
+    const persist = (saveMedia = false) => {
+      if (!active || !useProjectStore.getState().hasHydrated) return;
+      const project = useProjectStore.getState();
+      const search = useSearchStore.getState();
+
+      writeQueue = writeQueue
+        .then(async () => {
+          if (!project.file) {
+            await clearWorkspace();
+          } else {
+            await saveWorkspace({
+              file: project.file,
+              language: project.language,
+              transcript: project.transcript,
+              currentTime: project.currentTime,
+              searchQuery: search.query,
+              activeTab: search.activeTab,
+              isTranscribing: project.status === "processing",
+            }, saveMedia);
+          }
+          useProjectStore.getState().setPersistenceError(null);
+        })
+        .catch((reason: unknown) => {
+          useProjectStore.getState().setPersistenceError(
+            reason instanceof Error ? reason.message : "The workspace could not be saved on this device.",
+          );
+        });
+    };
+
+    const schedulePersist = (immediate = false, saveMedia = false) => {
+      if (immediate) {
+        if (timer !== undefined) window.clearTimeout(timer);
+        timer = undefined;
+        persist(saveMedia);
+      } else if (timer === undefined) {
+        timer = window.setTimeout(() => {
+          timer = undefined;
+          persist();
+        }, 700);
+      }
+    };
+
+    const flushPersist = () => {
+      if (timer !== undefined) {
+        window.clearTimeout(timer);
+        timer = undefined;
+      }
+      persist();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") flushPersist();
+    };
+
+    void (async () => {
+      try {
+        const saved = await loadWorkspace();
+        if (!active) return;
+        if (saved) {
+          restoreProject(saved);
+          useSearchStore.getState().restoreWorkspace(saved.searchQuery, saved.activeTab);
+        }
+      } catch (reason) {
+        if (!active) return;
+        setPersistenceError(
+          reason instanceof Error ? reason.message : "Saved workspace data could not be loaded.",
+        );
+      }
+
+      if (!active) return;
+      setHasHydrated(true);
+      unsubscribeProject = useProjectStore.subscribe((state, previous) => {
+        if (
+          state.file !== previous.file ||
+          state.language !== previous.language ||
+          state.transcript !== previous.transcript ||
+          state.currentTime !== previous.currentTime ||
+          state.status !== previous.status
+        ) {
+        schedulePersist(state.file !== previous.file, state.file !== previous.file);
+        }
+      });
+      unsubscribeSearch = useSearchStore.subscribe((state, previous) => {
+        if (state.query !== previous.query || state.activeTab !== previous.activeTab) schedulePersist();
+      });
+      setStorageReady(true);
+    })();
+
+    window.addEventListener("pagehide", flushPersist);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      flushPersist();
+      active = false;
+      unsubscribeProject?.();
+      unsubscribeSearch?.();
+      window.removeEventListener("pagehide", flushPersist);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [restoreProject, setHasHydrated, setPersistenceError]);
 
   const acceptFile = useCallback((candidate?: File) => {
     if (!candidate) return;
@@ -52,8 +170,8 @@ export function Workspace() {
     setFile(candidate);
   }, [clearSearch, setFile]);
 
-  const handleTranscribe = async () => {
-    if (!file || status === "processing") return;
+  const handleTranscribe = useCallback(async (resume = false) => {
+    if (!file || (status === "processing" && !resume)) return;
     setStatus("processing");
     setError(null);
     clearSearch();
@@ -64,7 +182,13 @@ export function Workspace() {
       setStatus("error");
       setError(reason instanceof Error ? reason.message : "Something went wrong while transcribing.");
     }
-  };
+  }, [file, status, language, setStatus, setError, clearSearch, setTranscript]);
+
+  useEffect(() => {
+    if (!hasHydrated || !resumeAfterReload || !file) return;
+    clearResumeAfterReload();
+    void handleTranscribe(true);
+  }, [hasHydrated, resumeAfterReload, file, clearResumeAfterReload, handleTranscribe]);
 
   const handleExport = () => {
     if (!transcript.length) return;
@@ -76,6 +200,20 @@ export function Workspace() {
     anchor.click();
     URL.revokeObjectURL(url);
   };
+
+  if (!storageReady) {
+    return (
+      <main className="workspace-shell">
+        <div className="workspace-header"><Brand /><ThemeToggle /></div>
+        <div className="workspace-content">
+          <div className="workspace-loading" role="status">
+            <LoaderCircle size={19} className="animate-spin text-accent" />
+            <span>Restoring your local workspace…</span>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="workspace-shell">
@@ -94,6 +232,8 @@ export function Workspace() {
           <div><p className="section-kicker">YOUR EDITING DESK</p><h1 className="mt-1 text-2xl font-semibold tracking-tight">Transcript workspace</h1><p className="mt-1 text-sm text-muted">Find the words. Find the moment. Keep the edit moving.</p></div>
           {file && <button className="button button-quiet button-small" type="button" onClick={() => { useProjectStore.getState().clearProject(); clearSearch(); }}><X size={15} /> Clear project</button>}
         </div>
+
+        {persistenceError && <div className="status-banner status-error mb-4" role="alert"><CircleAlert size={18} /><div><b>Workspace could not be saved locally</b><p>{persistenceError} Your current session is still available, but changes may not survive a reload.</p></div></div>}
 
         {!file ? (
           <div className="workspace-start">
@@ -126,7 +266,7 @@ export function Workspace() {
                 <button type="button" className="language-select" aria-haspopup="listbox" aria-expanded={showLanguageMenu} onClick={() => setShowLanguageMenu((open) => !open)}><span><small>TRANSCRIBE IN</small>{languages.find((item) => item.code === language)?.label}</span><ChevronDown size={15} /></button>
                 {showLanguageMenu && <div className="language-menu" role="listbox" aria-label="Choose language">{languages.map((item) => <button key={item.code} type="button" role="option" aria-selected={item.code === language} onClick={() => { setLanguage(item.code); setShowLanguageMenu(false); }}>{item.label}{item.code === language && <Check size={14} />}</button>)}</div>}
               </div>
-              <button className="button button-primary" type="button" disabled={status === "processing"} onClick={handleTranscribe}>
+              <button className="button button-primary" type="button" disabled={status === "processing"} onClick={() => void handleTranscribe()}>
                 {status === "processing" ? <><LoaderCircle size={16} className="animate-spin" /> Working…</> : status === "success" ? <><Check size={16} /> Transcribe again</> : <><Sparkles size={16} /> Transcribe</>}
               </button>
               {transcript.length > 0 && <button className="button button-outline button-small" type="button" onClick={handleExport}><Captions size={15} /> Export SRT</button>}

@@ -45,7 +45,15 @@ export function MediaPlayer() {
           playsInline
           className="h-full w-full object-contain"
           onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
-          onLoadedMetadata={(event) => setDuration(event.currentTarget.duration || 0)}
+          onLoadedMetadata={(event) => {
+            const mediaDuration = event.currentTarget.duration || 0;
+            setDuration(mediaDuration);
+            if (currentTime > 0) {
+              const restoredTime = Math.min(currentTime, mediaDuration);
+              event.currentTarget.currentTime = restoredTime;
+              setCurrentTime(restoredTime);
+            }
+          }}
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
           onEnded={() => setPlaying(false)}

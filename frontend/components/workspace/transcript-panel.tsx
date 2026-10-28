@@ -21,7 +21,8 @@ export function TranscriptPanel({ onExportSrt }: { onExportSrt: () => void }) {
   const setQuery = useSearchStore((state) => state.setQuery);
   const setResults = useSearchStore((state) => state.setResults);
   const setSearching = useSearchStore((state) => state.setSearching);
-  const [activeTab, setActiveTab] = useState<"transcript" | "search">("transcript");
+  const activeTab = useSearchStore((state) => state.activeTab);
+  const setActiveTab = useSearchStore((state) => state.setActiveTab);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   useEffect(() => {

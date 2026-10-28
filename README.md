@@ -136,8 +136,24 @@ steps directly on Windows.
 5. Start the server from the project folder:
    `python -m uvicorn app:app --port 8000`
    The first start downloads the model and takes a while.
-6. Open http://localhost:8000, choose a clip, pick a language
-   (`eng`, `yor`, `ibo`, `hau`, `pcm`) and click Transcribe.
+6. In a second terminal, start the frontend:
+   ```powershell
+   cd frontend
+   npm ci
+   npm run dev
+   ```
+7. Open http://localhost:3000 and choose **Open the workspace**.
+   The Next.js app proxies transcription requests to the local
+   FastAPI server at `http://localhost:8000`. Set `API_BASE_URL` in
+   `frontend/.env.local` if the server uses a different address, then
+   restart the frontend.
+
+The workspace saves the selected media, language, edited transcript,
+playback position and search state in this browser's local IndexedDB.
+Reloading restores the project. If a transcription was in progress,
+SABI starts that transcription again from the beginning after reload;
+avoid reloading during a long CPU transcription if you do not want to
+restart it. **Clear project** removes its locally saved workspace.
 
 Test clips are not included in the repository.
 
@@ -220,4 +236,3 @@ languages.
 This project is released under the MIT licence (see `LICENSE`).
 
 Models and datasets used have their own licences, listed above.
-

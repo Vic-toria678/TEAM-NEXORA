@@ -139,6 +139,7 @@ button { cursor: pointer; }
 .privacy-chip { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; }
 .privacy-chip svg { color: var(--accent-text); }
 .workspace-content { width: min(1392px, calc(100% - 48px)); margin: 0 auto; padding-block: 29px 64px; }
+.workspace-loading { display: flex; min-height: 55vh; align-items: center; justify-content: center; gap: 11px; color: var(--muted); font-size: 13px; }
 .workspace-start { max-width: 850px; margin: 52px auto; }
 .upload-zone { display: flex; min-height: 350px; flex-direction: column; align-items: center; justify-content: center; border: 1px dashed #51615c; border-radius: 15px; background: var(--surface); padding: 40px 24px; text-align: center; transition: border-color .2s, background .2s, transform .2s; }
 .upload-zone-active { transform: scale(1.005); border-color: var(--accent); background: var(--accent-soft); }
