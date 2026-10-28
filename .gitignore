@@ -222,3 +222,7 @@ __marimo__/
 *.mkv
 *.wav
 clips/
+!frontend/lib/
+!frontend/lib/**
+node_modules/
+.next/
