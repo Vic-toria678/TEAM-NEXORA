@@ -275,3 +275,175 @@ It recognized and transcribed the Nigerian slang "omo". Every other word is corr
 - Used Claude to help plan the project, research existing tools,
   troubleshoot setup errors, and write the server and test page.
  I [We] ran, tested and edited this code and can explain how it works.
+
+## Oct 28, 2026 — Current setup guide for Victoria
+
+These are the steps for the **current** SABI application. The old
+instructions above that say to open `http://localhost:8000` for the
+web page refer to the earlier placeholder. The current Next.js website
+runs at `http://localhost:3000`; FastAPI runs separately at
+`http://localhost:8000`.
+
+### What you need
+
+- Git for Windows.
+- Node.js 20 LTS (npm is included). Check with `node --version` and
+  `npm --version` in PowerShell.
+- WSL 2 with Ubuntu for the Python transcription server. We use WSL
+  because Windows Smart App Control blocked a compiled audio
+  dependency on one of our machines.
+- A Hugging Face account and access to
+  `Sunbird/faster-whisper-51-african-languages`. Sign in to Hugging
+  Face, visit the model page, and accept its access conditions before
+  trying to start the server.
+- Enough disk space and memory for the speech model. The first server
+  start downloads the model; subsequent starts use the cached copy.
+
+### 1. Install WSL if it is not already available
+
+Open PowerShell and run:
+
+```powershell
+wsl --install -d Ubuntu
+```
+
+Restart Windows if prompted, then open Ubuntu from the Start menu and
+complete its first-run username and password setup. If Ubuntu is
+already installed, open it and continue.
+
+### 2. Clone the project on Windows
+
+In PowerShell, choose a folder where you keep projects, then clone the
+repository and enter it:
+
+```powershell
+cd "$HOME\Documents"
+git clone https://github.com/Vic-toria678/TEAM-NEXORA.git
+cd TEAM-NEXORA
+```
+
+If GitHub asks you to authenticate, use your own GitHub account. Do
+not put passwords, Hugging Face tokens or other secrets in project
+files.
+
+### 3. Set up and start the local transcription server in Ubuntu
+
+Open Ubuntu (WSL). Install the Python tools if needed:
+
+```bash
+sudo apt update
+sudo apt install -y python3 python3-venv python3-pip git
+```
+
+The Windows Documents folder is available inside WSL under
+`/mnt/c/Users/`. For the commands below, replace `<WindowsUser>` with
+the Windows account folder name, and adjust the path if you cloned the
+repository somewhere other than Documents:
+
+```bash
+cd "/mnt/c/Users/<WindowsUser>/Documents/TEAM-NEXORA"
+python3 -m venv ~/sabi-venv
+source ~/sabi-venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+Authenticate inside Ubuntu so the server can download the gated model:
+
+```bash
+hf auth login
+```
+
+Paste a Hugging Face **read** token into the hidden prompt. The token
+is saved in your WSL Hugging Face credentials, not in the repository.
+Never add it to `.env`, source code, screenshots or a commit.
+
+Start FastAPI from the repository root, in this same Ubuntu terminal:
+
+```bash
+python -m uvicorn app:app --host 127.0.0.1 --port 8000
+```
+
+Keep the terminal open. On the first run, allow time for the model to
+download and load; the workspace is not ready to transcribe until the
+server has finished starting. WSL 2 forwards localhost ports to
+Windows, so the Next.js app can reach this server at
+`http://localhost:8000`.
+
+### 4. Set up and start the website on Windows
+
+Open a **second** PowerShell window and enter the frontend folder:
+
+```powershell
+cd "$HOME\Documents\TEAM-NEXORA\frontend"
+npm ci
+npm run dev
+```
+
+Keep this terminal open too. Once Next.js reports that it is ready,
+open **http://localhost:3000** in your browser. The landing page is at
+`/` and the editing workspace is at `/workspace`.
+
+The frontend already proxies its `/api/transcribe` request to
+`http://localhost:8000`, so the default setup needs no `.env.local`
+file and no FastAPI CORS changes. If FastAPI is running at a different
+address, create `frontend/.env.local` with a line such as
+`API_BASE_URL=http://localhost:8000` (replace the address as needed),
+then restart `npm run dev`. Do not add tokens or passwords to this
+file.
+
+### 5. Try a transcription
+
+1. Make sure both terminals are still running and FastAPI has finished
+   loading the model.
+2. In the browser, open `/workspace`.
+3. Drop a supported video or audio file onto the upload area, or click
+   **Choose a file**. Supported extensions include MP4, MOV, M4V,
+   WebM, MP3, WAV, M4A, AAC, OGG and FLAC.
+4. Choose the spoken language: English, Yoruba, Igbo, Hausa or
+   Nigerian Pidgin. Selecting the language sends the matching code
+   (`eng`, `yor`, `ibo`, `hau` or `pcm`) to the server.
+5. Click **Transcribe** and leave the browser and server running.
+   CPU transcription can take several minutes. The first model
+   download can take longer.
+6. When the transcript appears, click a timestamp to seek the media.
+   Click a transcript line's text to edit it. Use **Find a moment** to
+   search the transcript, or **Export SRT** to download the current
+   edited captions.
+
+### Troubleshooting
+
+- **Workspace says it cannot reach the server:** check that the Ubuntu
+  terminal is still running Uvicorn on port 8000 and finished loading
+  the model. In Windows, open `http://localhost:8000/docs`; if it does
+  not load, check the Uvicorn terminal for its startup error.
+- **Hugging Face reports access denied or authentication required:**
+  confirm the account has accepted the model access conditions, then
+  run `hf auth login` again in Ubuntu. Windows and WSL keep separate
+  credentials.
+- **Address already in use:** another process is already using port
+  3000 or 8000. Stop the other development server with `Ctrl+C`, or
+  identify and stop that process before restarting SABI.
+- **Node or npm is not recognized:** install Node.js 20 LTS, close and
+  reopen PowerShell, then verify both commands work.
+- **Python package or `av` errors on Windows:** run FastAPI from
+  Ubuntu/WSL as described above, not from Windows Python. The
+  repository pins PyAV below version 19 because faster-whisper 1.2.1
+  is incompatible with PyAV 19.
+- **A language is rejected:** use one of the five language options in
+  the workspace. The server validates the submitted language code.
+- **Captions or transcript look wrong:** speech recognition can make
+  mistakes, especially with noisy audio or silence at the end of a
+  clip. Review and edit the transcript before using or publishing it.
+
+### Important behavior and limitations
+
+- The media file is uploaded to the **local FastAPI server** on
+  Victoria's own computer; it is not sent to a SABI cloud service.
+- The model must be downloaded once. After it is cached, transcription
+  can run offline.
+- The current **Find a moment** feature is a local word/related-term
+  matching demo over the transcript. It does not yet use semantic
+  embedding search, so describe it honestly during testing or a demo.
+- Stop the website and server separately with `Ctrl+C` in their
+  respective terminals.
