@@ -13,15 +13,11 @@ Nigerian-accented speech and indigenous Nigerian languages.
 Built for OPEN//BUILD 2026 (OSCA Ile-Ife Hacktoberfest challenge).
 
 
-> **Status:** Transcription, transcript search and SRT export work. The
-> Sabi Agent teaser builder is available as a front-end mock feature:
-> moment suggestions and chat are simulated, and do not call an AI backend.
-> Long videos are slow on a CPU-only laptop (see Known limitations).
-
-
-##/*tolu*/
-Search currently uses local transcript matching; a semantic-search backend
-has not been added.
+> **Status:** The Next.js workspace supports local-server transcription,
+> transcript search and SRT export. Sabi Agent adds a front-end teaser
+> editor with deterministic mock suggestions and chat; it does not call
+> an AI backend. Long videos are slow on a CPU-only laptop (see Known
+> limitations).
 
 
 ## The problem
@@ -58,6 +54,13 @@ talks.
 3. **SRT captions export (working).**
 4. **Runs on the user's own computer.** After the one-time model
    download, transcription ran with Wi-Fi turned off (tested once).
+5. **Sabi Agent teaser editor (front-end prototype):** set a target and
+   tone, review timestamped moment suggestions, assemble and reorder a
+   storyboard, preview selected clips in the existing player, chat with
+   the mock editor assistant, and export a cut list as JSON, SRT or CSV.
+   Suggestions and chat are deterministic mock responses, not AI
+   analysis. The brief and storyboard are saved in this browser per
+   media project.
 
 ## Why not existing tools?
 
@@ -153,7 +156,12 @@ SABI starts that transcription again from the beginning after reload;
 avoid reloading during a long CPU transcription if you do not want to
 restart it. **Clear project** removes its locally saved workspace.
 After the model is downloaded, the server can run offline with
-   `HF_HUB_OFFLINE=1 python -m uvicorn app:app --port 8000`
+`HF_HUB_OFFLINE=1 python -m uvicorn app:app --port 8000`
+
+Sabi Agent is available in the workspace after a transcript is present.
+Open it from the **Sabi Agent** toolbar button or press **Ctrl/Cmd+J**.
+It is a front-end prototype and does not send transcript data to an AI
+service.
 
 **Interface**
 1. Install Node.js 18 or newer.
@@ -225,6 +233,24 @@ minutes.
 
 After the one-time model download, transcription ran with Wi-Fi turned off (tested twice on Oct27). It works offline.
 
+The frontend checks are run from `frontend/`:
+
+```powershell
+npm run typecheck
+npm test
+npm run build
+```
+
+On Oct 29 (Day 5), all three checks passed. The Sabi Agent unit and
+component suite contains 11 tests covering timecodes, caption-snapped
+and free trimming, reorder logic, JSON/CSV/SRT exports, brief submission,
+moment preview/add/dismiss, storyboard reorder/playback/export actions,
+and chat suggestions. A browser smoke test also confirmed that the
+workspace opened, mock moments appeared from a mocked transcription
+response, and a moment could be added to the storyboard. This did not
+test the real transcription service: FastAPI was not running in that
+environment.
+
 ## Next steps
 
 - **Support for more local languages.**
@@ -251,10 +277,12 @@ After the one-time model download, transcription ran with Wi-Fi turned off (test
 - Sunbird AI for the 51-African-languages Whisper fine-tune
   (apache-2.0 per its model page; link: [add it]).
 - FastAPI, uvicorn and faster-whisper (licences: [TODO]).
-- **AI assistance:** we used Claude (by Anthropic) to help plan the
-  project, research existing tools, troubleshoot setup, and write the
-  server code. The interface was built with AI assistance as well.
-  We ran, tested and edited everything and can explain it.
+- **AI assistance:** Claude and GitHub Copilot were used at different
+  stages for research, troubleshooting, code and documentation
+  assistance. The team chose the problem, product direction, feature
+  flow and design priorities, and reviewed and tested the work before
+  including it. AI suggestions were treated as assistance, not as a
+  substitute for understanding or checking the implementation.
 
 
 ## Licence
