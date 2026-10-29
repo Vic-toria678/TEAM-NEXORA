@@ -252,13 +252,44 @@ happy to share.
 
 ## Acknowledgements
 
-- Sunbird AI for the 51-African-languages Whisper fine-tune
-  (apache-2.0 per its model page; link: https://huggingface.co/Sunbird/faster-whisper-51-african-languages).
-- FastAPI, uvicorn and faster-whisper.
-- **AI assistance:** we used Claude (by Anthropic) to help plan the
-  project, research existing tools, troubleshoot setup, and write the
-  server code. The interface was built with AI assistance as well.
-  We ran, tested and edited everything and can explain it.
+**Models**
+- Sunbird AI: Sunbird/faster-whisper-51-african-languages, a Whisper
+  large-v3 fine-tune for 51 African languages (apache-2.0, per its
+  Hugging Face model page). This is the main model in SABI. It is
+  gated: users must accept its access conditions on Hugging Face.
+- OpenAI: Whisper, and SYSTRAN: the faster-whisper conversion of
+  Whisper small (Systran/faster-whisper-small), used as a baseline in
+  our tests (MIT).
+
+**Libraries and tools**
+- faster-whisper and CTranslate2 (speech inference), PyAV (media
+  decoding), Hugging Face Hub (model download), FastAPI and uvicorn
+  (local server), Next.js, React, TypeScript, Tailwind CSS,
+  framer-motion and lucide-react (interface). Each is used under its
+  own open-source licence; see its repository for the licence text.
+- Hugging Face (model hosting) and Cloudflare (temporary public link
+  to our laptop for the demo).
+
+**Datasets**
+- We did not train or fine-tune any model, and we did not download or
+  use any dataset ourselves. Any datasets used to train the models
+  above are described on their model pages.
+
+**Reused code**
+- The server follows the usage example on the Sunbird model page
+  (language map and decoding options), adapted by us. No other third-
+  party source code was copied into this repository.
+
+**Test footage**
+- Short clips used only for local testing. The clips are not
+  included in this repository.
+
+**AI-assisted work**
+- We used Claude (by Anthropic) to help plan the project, research
+  existing tools, troubleshoot setup errors, and write the server
+  code, test scripts and documentation. The interface was also built
+  with AI assistance. We ran, tested and edited everything and can
+  explain how it works.
 
 
 ## Licence
