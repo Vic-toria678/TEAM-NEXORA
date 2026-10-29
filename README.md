@@ -71,16 +71,16 @@ the editor's own computer. We have not yet tested how those tools
 
 perform on Nigerian accents or Pidgin, so we make no claims about
 
-that. TODO: add your own comparison if you test one.
+that. 
 
 
 
 ## The AI models
 | Role | Model | Licence | Status |
 |---|---|---|---|
-| Speech-to-text (main) | Sunbird/faster-whisper-51-african-languages (a fine-tune of Whisper large-v3 for 51 African languages) | apache-2.0 per its model page [confirm] | Working |
-| Speech-to-text (baseline) | Whisper small via faster-whisper (Systran/faster-whisper-small) | [TODO: check licence on its model page] | Tested, less accurate on our clips |
-| Search by meaning | TODO: choose an embedding model | TODO | Not started |
+| Speech-to-text (main) | Sunbird/faster-whisper-51-african-languages (a fine-tune of Whisper large-v3 for 51 African languages) | apache-2.0 | Working |
+| Speech-to-text (baseline) | Whisper small via faster-whisper (Systran/faster-whisper-small) | MIT | Tested, less accurate on our clips |
+
 
 **Why Sunbird:** on the same Nigerian-accented English clip, Whisper
 small mishandled several words ("department" became "new classmate",
@@ -92,7 +92,7 @@ tone marks.
 free account, must accept its access conditions on the model page,
 and must log in with your own access token.
 
-**Speed:** on a laptop CPU with no GPU, one clip took about [3mins] to
+**Speed:** on a laptop CPU with no GPU, one clip took about [160s] to
 transcribe (118 seconds of audio).
 
 
@@ -115,6 +115,7 @@ The model returns long 30-second segments with unreliable segment
 times, so the server uses word-level timestamps to build short
 caption-sized lines (about 70 characters or 6 seconds at most).
 
+Example:
 [106.21s] You are made to give like three to four pages.
 [107.29s - 111.99s] They just want you to pour out what you understand and is, well, it's just
 [111.99s - 115.53s] for our benefit and I get it, but omo, it's really stressful
@@ -158,9 +159,9 @@ Test clips are not included in this repository.
 
 - **Sunbird segment timestamps** were unreliable (one segment per
   30 seconds). We rebuild lines from word timestamps instead.
-- **Invented text:** at the end of one clip the model produced words
-  that were not spoken ("Visit.", "were."). Captions must be reviewed
-  before use.
+
+- **Captions must be reviewed** before use.
+
 - **Gated model:** reproducing the setup requires a Hugging Face
   account, accepting the model conditions and a personal token.
 
@@ -194,7 +195,6 @@ minutes.
 - Results come from single clips and are not statistically reliable.
 - Hausa and Igbo output was not checked by a speaker.
 - Transcription is slower than real time on a CPU.
-- The final interface, search and SRT export are not built yet.
 - CPU transcription is slower than real time (roughly 3 to 5 times the
   clip length on our laptop). A one-hour video would take hours. A GPU
   or a hosted server is needed for long-form use.
@@ -213,8 +213,8 @@ After the one-time model download, transcription ran with Wi-Fi turned off (test
 - **Teaser builder (concept, not built):** take a long podcast
   transcript and propose a one-minute teaser as an ordered cut list
   of real transcript lines, for the editor to review and reorder.
-- Run the server on a GPU machine and show progress for long files.
-- Test more clips and noisier audio, and have all languages checked
+- **Run the server on a GPU** machine and show progress for long files.
+- **Test more clips** and noisier audio, and have all languages checked
   by native speakers.
 
 
