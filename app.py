@@ -3,14 +3,23 @@ import os
 import tempfile
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from faster_whisper import WhisperModel
+from fastapi.staticfiles import StaticFiles
+from faster_whisper import BatchedInferencePipeline, WhisperModel
 from huggingface_hub import hf_hub_download
 
 REPO = "Sunbird/faster-whisper-51-african-languages"
 LANG_MAP = json.load(open(hf_hub_download(REPO, "language_map.json")))
 
+# Settings chosen from our speed test (see notes.md):
+# batched decoding with beam size 1 was the fastest and read as well as the others.
+BEAM_SIZE = 1
+BATCH_SIZE = 4
+
 # Loaded once when the server starts (takes a while)
-model = WhisperModel(REPO, device="cpu", compute_type="int8")
+base_model = WhisperModel(
+    REPO, device="cpu", compute_type="int8", cpu_threads=os.cpu_count() or 4
+)
+model = BatchedInferencePipeline(model=base_model)
 
 app = FastAPI()
 
@@ -54,9 +63,8 @@ async def transcribe(file: UploadFile = File(...), language: str = Form("eng")):
             path,
             language=LANG_MAP[language],
             task="transcribe",
-            beam_size=5,
-            vad_filter=True,
-            condition_on_previous_text=False,
+            beam_size=BEAM_SIZE,
+            batch_size=BATCH_SIZE,
             word_timestamps=True,
         )
         results = []
@@ -64,7 +72,6 @@ async def transcribe(file: UploadFile = File(...), language: str = Form("eng")):
             if s.words:
                 results.extend(group_words(s.words))
             else:
-                # fallback: keep the segment as it came
                 results.append({
                     "start": round(s.start, 2),
                     "end": round(s.end, 2),
@@ -73,3 +80,7 @@ async def transcribe(file: UploadFile = File(...), language: str = Form("eng")):
         return results
     finally:
         os.remove(path)
+
+
+# Serves a page if one is in the frontend folder. Keep this last.
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
