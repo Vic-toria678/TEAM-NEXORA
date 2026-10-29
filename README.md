@@ -207,6 +207,22 @@ minutes.
 
 After the one-time model download, transcription ran with Wi-Fi turned off (tested twice on Oct27). It works offline.
 
+## Live link (temporary)
+Live link: https://enquiry-ing-muscles-nashville.trycloudflare.com
+
+This link is a **temporary setup**, made because of the deadline. The
+page and the model server run on the team's own laptop, and
+Cloudflare forwards the link to it. It only works while that laptop,
+our model server and the Cloudflare tunnel are running, so it may be
+offline when you open it. If it is, please use the demo video
+(https://drive.google.com/drive/folders/15g-U3MFzcPkKrO_ijw4Tfl2JSEfA0aR-) or the setup steps below.
+
+Because the model runs on a CPU-only laptop, a transcription can take
+a few minutes. Videos uploaded through the live link pass through
+Cloudflare to our laptop, so unlike the fully local setup, they do not
+stay only on the user's device. Please only upload footage you are
+happy to share.
+
 ## Next steps
 
 - **Support for more local languages.**
@@ -226,14 +242,19 @@ After the one-time model download, transcription ran with Wi-Fi turned off (test
 - Ajala Tolulope, Obafemi Awolowo University
 
 
-
+## Built with
+- Python 3.14 (WSL Ubuntu): faster-whisper 1.2.1, CTranslate2,
+  PyAV (<19), huggingface_hub, FastAPI, uvicorn
+- Next.js 15, React, TypeScript, Tailwind CSS (Node 22)
+- Models: Sunbird/faster-whisper-51-african-languages (apache-2.0 per
+  its model page), Whisper small (MIT)
 
 
 ## Acknowledgements
 
 - Sunbird AI for the 51-African-languages Whisper fine-tune
-  (apache-2.0 per its model page; link: [add it]).
-- FastAPI, uvicorn and faster-whisper (licences: [TODO]).
+  (apache-2.0 per its model page; link: https://huggingface.co/Sunbird/faster-whisper-51-african-languages).
+- FastAPI, uvicorn and faster-whisper.
 - **AI assistance:** we used Claude (by Anthropic) to help plan the
   project, research existing tools, troubleshoot setup, and write the
   server code. The interface was built with AI assistance as well.
