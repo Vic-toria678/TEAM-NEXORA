@@ -7,6 +7,7 @@ import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const links = [
+  { label: "Demo", href: "/demo" },
   { label: "Features", href: "/#features" },
   { label: "How it works", href: "/#how-it-works" },
 ];
