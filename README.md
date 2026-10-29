@@ -166,7 +166,7 @@ Test clips are not included in this repository.
   account, accepting the model conditions and a personal token.
 
 ## Demo
-A demo video of the working prototype is linked here: PASTE-THE-LINK
+A demo video of the working prototype is linked here: https://drive.google.com/drive/folders/15g-U3MFzcPkKrO_ijw4Tfl2JSEfA0aR-
 Parts of the video where we waited for the model were cut.
 
 
@@ -285,7 +285,7 @@ happy to share.
   included in this repository.
 
 **AI-assisted work**
-- We used Claude (by Anthropic) to help plan the project, research
+- We used Claude (by Anthropic),Lovable and Copilot to help plan the project, research
   existing tools, troubleshoot setup errors, and write the server
   code, test scripts and documentation. The interface was also built
   with AI assistance. We ran, tested and edited everything and can
