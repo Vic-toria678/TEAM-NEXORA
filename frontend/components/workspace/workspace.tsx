@@ -8,6 +8,7 @@ import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MediaPlayer } from "@/components/workspace/media-player";
 import { TranscriptPanel } from "@/components/workspace/transcript-panel";
+import { SabiAgentPanel } from "@/features/sabi-agent/components/sabi-agent-panel";
 import { useProjectStore } from "@/stores/useProjectStore";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { transcribeMedia } from "@/lib/api";
@@ -31,6 +32,8 @@ export function Workspace() {
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [storageReady, setStorageReady] = useState(false);
+  const [sabiAgentOpen, setSabiAgentOpen] = useState(false);
+  const [sabiAgentMounted, setSabiAgentMounted] = useState(false);
   const file = useProjectStore((state) => state.file);
   const language = useProjectStore((state) => state.language);
   const transcript = useProjectStore((state) => state.transcript);
@@ -49,6 +52,22 @@ export function Workspace() {
   const setPersistenceError = useProjectStore((state) => state.setPersistenceError);
   const clearResumeAfterReload = useProjectStore((state) => state.clearResumeAfterReload);
   const clearSearch = useSearchStore((state) => state.clear);
+  const closeSabiAgent = useCallback(() => setSabiAgentOpen(false), []);
+  const toggleSabiAgent = useCallback(() => setSabiAgentOpen((open) => {
+    if (!open) setSabiAgentMounted(true);
+    return !open;
+  }), []);
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "j" && transcript.length > 0) {
+        event.preventDefault();
+        toggleSabiAgent();
+      }
+    };
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, [toggleSabiAgent, transcript.length]);
 
   useEffect(() => {
     let active = true;
@@ -166,6 +185,7 @@ export function Workspace() {
       return;
     }
     setUploadError(null);
+    setSabiAgentOpen(false);
     clearSearch();
     setFile(candidate);
   }, [clearSearch, setFile]);
@@ -230,7 +250,7 @@ export function Workspace() {
       <div className="workspace-content">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div><p className="section-kicker">YOUR EDITING DESK</p><h1 className="mt-1 text-2xl font-semibold tracking-tight">Transcript workspace</h1><p className="mt-1 text-sm text-muted">Find the words. Find the moment. Keep the edit moving.</p></div>
-          {file && <button className="button button-quiet button-small" type="button" onClick={() => { useProjectStore.getState().clearProject(); clearSearch(); }}><X size={15} /> Clear project</button>}
+          {file && <button className="button button-quiet button-small" type="button" onClick={() => { setSabiAgentOpen(false); setSabiAgentMounted(false); useProjectStore.getState().clearProject(); clearSearch(); }}><X size={15} /> Clear project</button>}
         </div>
 
         {persistenceError && <div className="status-banner status-error mb-4" role="alert"><CircleAlert size={18} /><div><b>Workspace could not be saved locally</b><p>{persistenceError} Your current session is still available, but changes may not survive a reload.</p></div></div>}
@@ -270,18 +290,38 @@ export function Workspace() {
                 {status === "processing" ? <><LoaderCircle size={16} className="animate-spin" /> Working…</> : status === "success" ? <><Check size={16} /> Transcribe again</> : <><Sparkles size={16} /> Transcribe</>}
               </button>
               {transcript.length > 0 && <button className="button button-outline button-small" type="button" onClick={handleExport}><Captions size={15} /> Export SRT</button>}
+              <button
+                className={`button button-outline button-small sabi-launch-button ${sabiAgentOpen ? "sabi-launch-active" : ""}`}
+                type="button"
+                disabled={!transcript.length}
+                aria-keyshortcuts="Control+J Meta+J"
+                aria-expanded={sabiAgentOpen}
+                aria-controls={sabiAgentOpen ? "sabi-agent-panel" : undefined}
+                title={transcript.length ? "Open Sabi Agent (Ctrl/Cmd+J)" : "Transcribe this file to use Sabi Agent"}
+                onClick={toggleSabiAgent}
+              >
+                <Sparkles size={15} /> Sabi Agent
+              </button>
             </div>
-            <AnimatePresence>
+            <AnimatePresence onExitComplete={() => { if (!sabiAgentOpen) setSabiAgentMounted(false); }}>
               {status === "processing" && <motion.div className="status-banner status-working" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><LoaderCircle size={17} className="animate-spin" /><div><b>Listening closely to your footage</b><p>Transcription can take a few minutes on CPU. Keep this workspace open.</p></div><span className="status-pulse" /></motion.div>}
               {status === "error" && error && <motion.div className="status-banner status-error" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}><CircleAlert size={18} /><div><b>We couldn’t transcribe this file</b><p>{error} Check that the local FastAPI server is running, then try again.</p></div></motion.div>}
               {status === "success" && <motion.div className="status-banner status-success" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}><Check size={18} /><div><b>Transcript ready to review</b><p>{transcript.length} timestamped lines · AI output can make mistakes, so review before publishing.</p></div></motion.div>}
             </AnimatePresence>
-            <div className="workspace-grid">
+            <div className={`workspace-grid ${sabiAgentMounted ? "workspace-grid-sabi" : ""}`}>
               <section className="media-column">
                 <MediaPlayer />
                 <div className="media-note"><LockKeyhole size={13} /> Media preview stays in your browser</div>
               </section>
               <TranscriptPanel onExportSrt={handleExport} />
+              <AnimatePresence>
+                {sabiAgentOpen && <SabiAgentPanel
+                  key={`${file.name}:${file.size}:${file.lastModified}`}
+                  transcript={transcript}
+                  projectKey={`${file.name}:${file.size}:${file.lastModified}`}
+                  onClose={closeSabiAgent}
+                />}
+              </AnimatePresence>
             </div>
           </>
         )}

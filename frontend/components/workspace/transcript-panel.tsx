@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, FileText, Search, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useProjectStore } from "@/stores/useProjectStore";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { searchTranscript } from "@/lib/search";
@@ -13,7 +13,9 @@ export function TranscriptPanel({ onExportSrt }: { onExportSrt: () => void }) {
   const transcript = useProjectStore((state) => state.transcript);
   const status = useProjectStore((state) => state.status);
   const currentTime = useProjectStore((state) => state.currentTime);
+  const highlightRange = useProjectStore((state) => state.highlightRange);
   const seekTo = useProjectStore((state) => state.seekTo);
+  const setHighlightRange = useProjectStore((state) => state.setHighlightRange);
   const updateSegment = useProjectStore((state) => state.updateSegment);
   const query = useSearchStore((state) => state.query);
   const results = useSearchStore((state) => state.results);
@@ -24,6 +26,12 @@ export function TranscriptPanel({ onExportSrt }: { onExportSrt: () => void }) {
   const activeTab = useSearchStore((state) => state.activeTab);
   const setActiveTab = useSearchStore((state) => state.setActiveTab);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!highlightRange) return;
+    scrollRef.current?.querySelector('[data-story-active="true"]')?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [highlightRange]);
 
   useEffect(() => {
     if (!query.trim() || !transcript.length) {
@@ -43,6 +51,7 @@ export function TranscriptPanel({ onExportSrt }: { onExportSrt: () => void }) {
 
   const jumpToResult = (result: SearchResult) => {
     setActiveTab("transcript");
+    setHighlightRange(null);
     seekTo(result.start);
   };
 
@@ -63,12 +72,13 @@ export function TranscriptPanel({ onExportSrt }: { onExportSrt: () => void }) {
           <span className="search-mode"><Sparkles size={12} /> DEMO</span>
         </div>
       )}
-      <div className="transcript-scroll">
+      <div className="transcript-scroll" ref={scrollRef}>
         {activeTab === "transcript" && transcript.length > 0 && transcript.map((segment, index) => {
-          const isActive = currentTime >= segment.start && currentTime <= segment.end;
+          const isInStoryRange = highlightRange !== null && segment.start <= highlightRange.end && segment.end >= highlightRange.start;
+          const isActive = isInStoryRange || (currentTime >= segment.start && currentTime <= segment.end);
           return (
-            <motion.article key={`${segment.start}-${index}`} layout initial={{ opacity: 0, y: 7 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, delay: Math.min(index * 0.012, 0.3) }} className={`transcript-line ${isActive ? "transcript-line-active" : ""}`} onClick={() => seekTo(segment.start)}>
-              <button type="button" className="timestamp" aria-label={`Seek to ${formatTime(segment.start)}`} onClick={(event) => { event.stopPropagation(); seekTo(segment.start); }}>{formatTime(segment.start)}</button>
+            <motion.article key={`${segment.start}-${index}`} layout initial={{ opacity: 0, y: 7 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, delay: Math.min(index * 0.012, 0.3) }} className={`transcript-line ${isActive ? "transcript-line-active" : ""}`} data-story-active={isInStoryRange ? "true" : undefined} onClick={() => { setHighlightRange(null); seekTo(segment.start); }}>
+              <button type="button" className="timestamp" aria-label={`Seek to ${formatTime(segment.start)}`} onClick={(event) => { event.stopPropagation(); setHighlightRange(null); seekTo(segment.start); }}>{formatTime(segment.start)}</button>
               {editingIndex === index ? (
                 <textarea autoFocus aria-label={`Edit transcript line ${index + 1}`} className="transcript-edit" rows={Math.max(2, Math.ceil(segment.text.length / 52))} value={segment.text} onChange={(event) => updateSegment(index, event.target.value)} onBlur={() => setEditingIndex(null)} onKeyDown={(event) => { if (event.key === "Escape" || (event.key === "Enter" && !event.shiftKey)) { event.preventDefault(); setEditingIndex(null); } }} onClick={(event) => event.stopPropagation()} />
               ) : (
