@@ -226,7 +226,7 @@ happy to share.
 ## Next steps
 
 - **Support for more local languages.**
-- **Teaser builder (concept, not built):** take a long podcast
+- **Teaser builder (not fully built - under the Sabi-Agent branch):** take a long podcast
   transcript and propose a one-minute teaser as an ordered cut list
   of real transcript lines, for the editor to review and reorder.
 - **Run the server on a GPU** machine and show progress for long files.
