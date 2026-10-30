@@ -192,7 +192,7 @@ Test clips are not included in this repository.
   account, accepting the model conditions and a personal token.
 
 ## Demo
-A demo video of the working prototype is linked here: PASTE-THE-LINK
+A demo video of the working prototype is available [here](frontend/public/demo.mp4).
 Parts of the video where we waited for the model were cut.
 
 
