@@ -9,7 +9,14 @@ interface ProjectState {
   status: TranscriptionStatus;
   error: string | null;
   currentTime: number;
+  mediaPlaying: boolean;
   seekTime: number | null;
+  seekRequest: number;
+  pauseRequest: number;
+  highlightRange: { start: number; end: number } | null;
+  hasHydrated: boolean;
+  persistenceError: string | null;
+  resumeAfterReload: boolean;
   setFile: (file: File | null) => void;
   setLanguage: (language: LanguageCode) => void;
   setStatus: (status: TranscriptionStatus) => void;
@@ -17,7 +24,20 @@ interface ProjectState {
   setTranscript: (transcript: TranscriptSegment[]) => void;
   updateSegment: (index: number, text: string) => void;
   setCurrentTime: (time: number) => void;
+  setMediaPlaying: (playing: boolean) => void;
   seekTo: (time: number) => void;
+  pauseMedia: () => void;
+  setHighlightRange: (range: { start: number; end: number } | null) => void;
+  restoreWorkspace: (workspace: {
+    file: File;
+    language: LanguageCode;
+    transcript: TranscriptSegment[];
+    currentTime: number;
+    isTranscribing: boolean;
+  }) => void;
+  setHasHydrated: (hasHydrated: boolean) => void;
+  setPersistenceError: (error: string | null) => void;
+  clearResumeAfterReload: () => void;
   clearProject: () => void;
 }
 
@@ -29,7 +49,14 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   status: "idle",
   error: null,
   currentTime: 0,
+  mediaPlaying: false,
   seekTime: null,
+  seekRequest: 0,
+  pauseRequest: 0,
+  highlightRange: null,
+  hasHydrated: false,
+  persistenceError: null,
+  resumeAfterReload: false,
   setFile: (file) => {
     const previousUrl = get().mediaUrl;
     if (previousUrl) URL.revokeObjectURL(previousUrl);
@@ -40,7 +67,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       status: "idle",
       error: null,
       currentTime: 0,
+      mediaPlaying: false,
       seekTime: null,
+      seekRequest: 0,
+      highlightRange: null,
+      resumeAfterReload: false,
     });
   },
   setLanguage: (language) => set({ language }),
@@ -54,7 +85,31 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       ),
     })),
   setCurrentTime: (currentTime) => set({ currentTime }),
-  seekTo: (seekTime) => set({ seekTime }),
+  setMediaPlaying: (mediaPlaying) => set({ mediaPlaying }),
+  seekTo: (seekTime) => set((state) => ({ seekTime, seekRequest: state.seekRequest + 1 })),
+  pauseMedia: () => set((state) => ({ pauseRequest: state.pauseRequest + 1 })),
+  setHighlightRange: (highlightRange) => set({ highlightRange }),
+  restoreWorkspace: (workspace) => {
+    const previousUrl = get().mediaUrl;
+    if (previousUrl) URL.revokeObjectURL(previousUrl);
+    set({
+      file: workspace.file,
+      mediaUrl: URL.createObjectURL(workspace.file),
+      language: workspace.language,
+      transcript: workspace.transcript,
+      currentTime: workspace.currentTime,
+      mediaPlaying: false,
+      seekTime: null,
+      seekRequest: 0,
+      highlightRange: null,
+      status: workspace.isTranscribing ? "processing" : workspace.transcript.length ? "success" : "idle",
+      resumeAfterReload: workspace.isTranscribing,
+      error: null,
+    });
+  },
+  setHasHydrated: (hasHydrated) => set({ hasHydrated }),
+  setPersistenceError: (persistenceError) => set({ persistenceError }),
+  clearResumeAfterReload: () => set({ resumeAfterReload: false }),
   clearProject: () => {
     const mediaUrl = get().mediaUrl;
     if (mediaUrl) URL.revokeObjectURL(mediaUrl);
@@ -65,7 +120,12 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       status: "idle",
       error: null,
       currentTime: 0,
+      mediaPlaying: false,
       seekTime: null,
+      seekRequest: 0,
+      highlightRange: null,
+      persistenceError: null,
+      resumeAfterReload: false,
     });
   },
 }));

@@ -10,8 +10,11 @@ export function MediaPlayer() {
   const file = useProjectStore((state) => state.file);
   const mediaUrl = useProjectStore((state) => state.mediaUrl);
   const seekTime = useProjectStore((state) => state.seekTime);
+  const seekRequest = useProjectStore((state) => state.seekRequest);
+  const pauseRequest = useProjectStore((state) => state.pauseRequest);
   const currentTime = useProjectStore((state) => state.currentTime);
   const setCurrentTime = useProjectStore((state) => state.setCurrentTime);
+  const setMediaPlaying = useProjectStore((state) => state.setMediaPlaying);
   const [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
@@ -21,15 +24,23 @@ export function MediaPlayer() {
     const media = mediaRef.current;
     if (media && seekTime !== null) {
       media.currentTime = seekTime;
-      media.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+      media.play().then(() => { setPlaying(true); setMediaPlaying(true); }).catch(() => { setPlaying(false); setMediaPlaying(false); });
     }
-  }, [seekTime]);
+  }, [seekRequest]);
+
+  useEffect(() => {
+    if (pauseRequest > 0) {
+      mediaRef.current?.pause();
+      setPlaying(false);
+      setMediaPlaying(false);
+    }
+  }, [pauseRequest]);
 
   const togglePlay = () => {
     const media = mediaRef.current;
     if (!media) return;
-    if (media.paused) media.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
-    else { media.pause(); setPlaying(false); }
+    if (media.paused) media.play().then(() => { setPlaying(true); setMediaPlaying(true); }).catch(() => { setPlaying(false); setMediaPlaying(false); });
+    else { media.pause(); setPlaying(false); setMediaPlaying(false); }
   };
 
   const MediaElement = isAudio ? "audio" : "video";
@@ -45,10 +56,18 @@ export function MediaPlayer() {
           playsInline
           className="h-full w-full object-contain"
           onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
-          onLoadedMetadata={(event) => setDuration(event.currentTarget.duration || 0)}
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          onEnded={() => setPlaying(false)}
+          onLoadedMetadata={(event) => {
+            const mediaDuration = event.currentTarget.duration || 0;
+            setDuration(mediaDuration);
+            if (currentTime > 0) {
+              const restoredTime = Math.min(currentTime, mediaDuration);
+              event.currentTarget.currentTime = restoredTime;
+              setCurrentTime(restoredTime);
+            }
+          }}
+          onPlay={() => { setPlaying(true); setMediaPlaying(true); }}
+          onPause={() => { setPlaying(false); setMediaPlaying(false); }}
+          onEnded={() => { setPlaying(false); setMediaPlaying(false); }}
         />}
         {isAudio && <div className="audio-cover"><span className="audio-cover-icon"><Volume2 size={25} /></span><span className="text-xs tracking-[0.17em] text-muted">AUDIO PREVIEW</span></div>}
         {!isAudio && !file?.type.startsWith("video/") && <div className="audio-cover"><span className="audio-cover-icon"><Volume2 size={25} /></span><span className="text-xs tracking-[0.17em] text-muted">MEDIA PREVIEW</span></div>}

@@ -67,10 +67,12 @@ laptop and retry on Oct 26.
 - Read and record the licence of each model.
 
 ### AI assistance
-Used Claude to help plan the project, research existing tools,
-troubleshoot setup errors, and write the first version of the UI
-prototype code (see Oct 26). [Make sure we can explain every part we
-submit, and update this if AI helps write more code.]
+Claude was used during early planning and research, for troubleshooting,
+and to help draft the first UI prototype. The problem and direction were
+chosen by the team based on our own video-editing experience; the
+prototype was reviewed and revised against the workflow we wanted to
+show. Track further AI assistance in the later dated entries rather
+than treating this first prototype as the whole project.
 
 ## Oct 26 (Day 2)
 
@@ -273,8 +275,10 @@ It recognized and transcribed the Nigerian slang "omo". Every other word is corr
 
 ### AI assistance
 - Used Claude to help plan the project, research existing tools,
-  troubleshoot setup errors, and write the server and test page.
- I [We] ran, tested and edited this code and can explain how it works.
+  troubleshoot setup errors, and draft parts of the server and test page.
+- We ran the code, checked its output against the clips, and recorded
+  limitations when results were uncertain. Model and UI choices were
+  made in response to our tests and the editor workflow we wanted.
 
 ## Oct 28, 2026 — Current setup guide for Victoria
 
@@ -511,5 +515,82 @@ file.
 
 ### AI assistance
 - Used Claude to help with setup, debugging the errors above, the
-  speed experiments and the server code. We ran and tested everything and
-  can explain it.
+  speed experiments and server-code changes. The model settings were
+  selected after comparing measured timings and listening to the
+  resulting clip; AI assistance did not replace those experiments.
+  We ran and reviewed the resulting workflow.
+
+## Oct 29, 2026 (Day 5)
+
+### Integrating the shared work
+- Started from the `feature/sabi-agent` branch, which already included
+  the `feature/persist-workspace-state` commit.
+- Fetched the latest `origin/main` and merged its three newer shared
+  commits into `feature/sabi-agent`. The incoming work included README
+  updates and the faster-whisper batched-inference change in `app.py`
+  (beam size 1, batch size 4).
+- Resolved the README overlap by keeping the current setup steps and
+  workspace persistence notes, adding the offline startup instruction,
+  and updating the project status so it describes Sabi Agent as a
+  front-end mock rather than a real AI feature.
+- Pushed the merge to `origin/feature/sabi-agent` at
+  `8e598c3` (`Merge latest main into Sabi Agent`).
+
+### Sabi Agent implementation
+- Added a typed front-end service contract and deterministic mock
+  service; no backend or AI API calls were added.
+- Added the Story Brief, tone/platform settings, candidate-moment list
+  and filters, transcript-linked highlighting/seeking, and the
+  storyboard editor.
+- Added storyboard reorder controls, half-second caption-snapped or
+  free trims, arc slots, duration meter, over-target trimming,
+  undo/redo, and per-media local storage persistence.
+- Added mock editor chat and actionable suggestions, stitched preview
+  controls using the existing media player, and JSON, SRT, CSV and
+  clipboard cut-list exports.
+- Added a 15-moment Nigerian podcast sample fixture, feature README,
+  Vitest configuration, utility tests and component interaction tests.
+- Integrated the panel into the workspace toolbar with a Ctrl/Cmd+J
+  shortcut and kept the existing workspace, transcript, player, theme
+  tokens and Zustand state patterns.
+
+### Verification
+- `npm run typecheck` passed.
+- `npm test` passed: 11 tests across utility/exporter and component
+  interaction suites.
+- `npm run build` passed for the merged Next.js frontend.
+- `git diff --check` passed and the Sabi Agent branch was clean after
+  the merge was pushed.
+- Started the frontend locally; `/workspace` returned HTTP 200. In the
+  browser, used a mocked transcription response to verify opening Sabi
+  Agent, finding three suggested moments, and adding a moment to the
+  storyboard.
+- A follow-up real transcription request returned HTTP 500 because
+  FastAPI was not running. Python was not available in this Windows
+  environment and WSL had no installed distribution, so the updated
+  server could not be started or syntax-checked here. This is an
+  environment limitation, not a successful live-backend test.
+
+### Deployment status and remaining work
+- Started exploring a Vercel deployment, then stopped at the user's
+  request before creating a project or deployment. Vercel CLI
+  authentication was not completed.
+- The frontend expects a local FastAPI server by default. A Vercel
+  deployment with working transcription requires a separately hosted
+  API and a configured `API_BASE_URL`.
+- Sabi Agent suggestions and chat remain mocked. The real AI/service
+  adapter, production backend, and end-to-end transcription verification
+  are still future work.
+
+### AI assistance
+- Used Copilot in VS Code to help explore the existing app, draft and
+  integrate Sabi Agent frontend code, update documentation, and add/run
+  tests. The feature brief, editing flow and interaction priorities
+  came from the team's product decisions; suggestions and code were
+  checked against the existing app and revised during implementation.
+- We ran the type check, tests, production build and a browser smoke
+  test. We recorded the real-transcription failure rather than
+  presenting the mocked browser flow as a successful backend test.
+- This log distinguishes what we exercised from what remains a mock or
+  unverified. Keep that distinction in future entries, especially when
+  describing AI-assisted code or test results.

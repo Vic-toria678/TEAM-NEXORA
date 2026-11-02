@@ -13,15 +13,11 @@ Nigerian-accented speech and indigenous Nigerian languages.
 Built for OPEN//BUILD 2026 (OSCA Ile-Ife Hacktoberfest challenge).
 
 
-> **Status:** Prototype. Transcription, search and SRT export work.
-> Long videos are slow on a CPU-only laptop (see Known limitations).
-> The teaser feature is a concept and is not built.
-
-
-##/*tolu*/
-> **Status:** Transcription runs locally through FastAPI. The Next.js
-> frontend provides the landing page and editing workspace. Search uses
-> a local transcript-matching demo until a semantic-search backend is added.
+> **Status:** The Next.js workspace supports local-server transcription,
+> transcript search and SRT export. Sabi Agent adds a front-end teaser
+> editor with deterministic mock suggestions and chat; it does not call
+> an AI backend. Long videos are slow on a CPU-only laptop (see Known
+> limitations).
 
 
 ## The problem
@@ -58,6 +54,13 @@ talks.
 3. **SRT captions export (working).**
 4. **Runs on the user's own computer.** After the one-time model
    download, transcription ran with Wi-Fi turned off (tested once).
+5. **Sabi Agent teaser editor (front-end prototype):** set a target and
+   tone, review timestamped moment suggestions, assemble and reorder a
+   storyboard, preview selected clips in the existing player, chat with
+   the mock editor assistant, and export a cut list as JSON, SRT or CSV.
+   Suggestions and chat are deterministic mock responses, not AI
+   analysis. The brief and storyboard are saved in this browser per
+   media project.
 
 ## Why not existing tools?
 
@@ -71,7 +74,7 @@ the editor's own computer. We have not yet tested how those tools
 
 perform on Nigerian accents or Pidgin, so we make no claims about
 
-that. 
+that.
 
 
 
@@ -134,8 +137,31 @@ App Control blocked a compiled dependency (`av`) on our laptop.
    `hf auth login`. Never commit your token.
 4. Start the server (the first start downloads the model, several GB):
    `python -m uvicorn app:app --port 8000`
-   After the download it can run offline with
-   `HF_HUB_OFFLINE=1 python -m uvicorn app:app --port 8000`
+5. In a second terminal, start the frontend:
+   ```powershell
+   cd frontend
+   npm ci
+   npm run dev
+   ```
+6. Open http://localhost:3000 and choose **Open the workspace**.
+   The Next.js app proxies transcription requests to the local
+   FastAPI server at `http://localhost:8000`. Set `API_BASE_URL` in
+   `frontend/.env.local` if the server uses a different address, then
+   restart the frontend.
+
+The workspace saves the selected media, language, edited transcript,
+playback position and search state in this browser's local IndexedDB.
+Reloading restores the project. If a transcription was in progress,
+SABI starts that transcription again from the beginning after reload;
+avoid reloading during a long CPU transcription if you do not want to
+restart it. **Clear project** removes its locally saved workspace.
+After the model is downloaded, the server can run offline with
+`HF_HUB_OFFLINE=1 python -m uvicorn app:app --port 8000`
+
+Sabi Agent is available in the workspace after a transcript is present.
+Open it from the **Sabi Agent** toolbar button or press **Ctrl/Cmd+J**.
+It is a front-end prototype and does not send transcript data to an AI
+service.
 
 **Interface**
 1. Install Node.js 18 or newer.
@@ -166,7 +192,7 @@ Test clips are not included in this repository.
   account, accepting the model conditions and a personal token.
 
 ## Demo
-A demo video of the working prototype is linked here: https://drive.google.com/drive/folders/15g-U3MFzcPkKrO_ijw4Tfl2JSEfA0aR-
+A demo video of the working prototype is available [here](frontend/public/demo.mp4).
 Parts of the video where we waited for the model were cut.
 
 
@@ -207,28 +233,29 @@ minutes.
 
 After the one-time model download, transcription ran with Wi-Fi turned off (tested twice on Oct27). It works offline.
 
-## Live link (temporary)
-Live link: https://enquiry-ing-muscles-nashville.trycloudflare.com
+The frontend checks are run from `frontend/`:
 
-This link is a **temporary setup**, made because of the deadline. The
-page and the model server run on the team's own laptop, and
-Cloudflare forwards the link to it. It only works while that laptop,
-our model server and the Cloudflare tunnel are running, so it may be
-offline when you open it. If it is, please use the demo video
-(https://drive.google.com/drive/folders/15g-U3MFzcPkKrO_ijw4Tfl2JSEfA0aR-) or the setup steps below.
+```powershell
+npm run typecheck
+npm test
+npm run build
+```
 
-Because the model runs on a CPU-only laptop, a transcription can take
-a few minutes. Videos uploaded through the live link pass through
-Cloudflare to our laptop, so unlike the fully local setup, they do not
-stay only on the user's device. Please only upload footage you are
-happy to share.
+On Oct 29 (Day 5), all three checks passed. The Sabi Agent unit and
+component suite contains 11 tests covering timecodes, caption-snapped
+and free trimming, reorder logic, JSON/CSV/SRT exports, brief submission,
+moment preview/add/dismiss, storyboard reorder/playback/export actions,
+and chat suggestions. A browser smoke test also confirmed that the
+workspace opened, mock moments appeared from a mocked transcription
+response, and a moment could be added to the storyboard. This did not
+test the real transcription service: FastAPI was not running in that
+environment.
 
 ## Next steps
 
 - **Support for more local languages.**
-- **Teaser builder (not fully built - under the Sabi-Agent branch):** take a long podcast
-  transcript and propose a one-minute teaser as an ordered cut list
-  of real transcript lines, for the editor to review and reorder.
+- **Sabi Agent:** replace the deterministic front-end suggestions with
+  real transcript analysis and connect the editor workflow to the API.
 - **Run the server on a GPU** machine and show progress for long files.
 - **Test more clips** and noisier audio, and have all languages checked
   by native speakers.
@@ -242,54 +269,20 @@ happy to share.
 - Ajala Tolulope, Obafemi Awolowo University
 
 
-## Built with
-- Python 3.14 (WSL Ubuntu): faster-whisper 1.2.1, CTranslate2,
-  PyAV (<19), huggingface_hub, FastAPI, uvicorn
-- Next.js 15, React, TypeScript, Tailwind CSS (Node 22)
-- Models: Sunbird/faster-whisper-51-african-languages (apache-2.0 per
-  its model page), Whisper small (MIT)
+
 
 
 ## Acknowledgements
 
-**Models**
-- Sunbird AI: Sunbird/faster-whisper-51-african-languages, a Whisper
-  large-v3 fine-tune for 51 African languages (apache-2.0, per its
-  Hugging Face model page). This is the main model in SABI. It is
-  gated: users must accept its access conditions on Hugging Face.
-- OpenAI: Whisper, and SYSTRAN: the faster-whisper conversion of
-  Whisper small (Systran/faster-whisper-small), used as a baseline in
-  our tests (MIT).
-
-**Libraries and tools**
-- faster-whisper and CTranslate2 (speech inference), PyAV (media
-  decoding), Hugging Face Hub (model download), FastAPI and uvicorn
-  (local server), Next.js, React, TypeScript, Tailwind CSS,
-  framer-motion and lucide-react (interface). Each is used under its
-  own open-source licence; see its repository for the licence text.
-- Hugging Face (model hosting) and Cloudflare (temporary public link
-  to our laptop for the demo).
-
-**Datasets**
-- We did not train or fine-tune any model, and we did not download or
-  use any dataset ourselves. Any datasets used to train the models
-  above are described on their model pages.
-
-**Reused code**
-- The server follows the usage example on the Sunbird model page
-  (language map and decoding options), adapted by us. No other third-
-  party source code was copied into this repository.
-
-**Test footage**
-- Short clips used only for local testing. The clips are not
-  included in this repository.
-
-**AI-assisted work**
-- We used Claude (by Anthropic),Lovable and Copilot to help plan the project, research
-  existing tools, troubleshoot setup errors, and write the server
-  code, test scripts and documentation. The interface was also built
-  with AI assistance. We ran, tested and edited everything and can
-  explain how it works.
+- Sunbird AI for the 51-African-languages Whisper fine-tune
+  (apache-2.0 per its model page; link: [add it]).
+- FastAPI, uvicorn and faster-whisper (licences: [TODO]).
+- **AI assistance:** Claude and GitHub Copilot were used at different
+  stages for research, troubleshooting, code and documentation
+  assistance. The team chose the problem, product direction, feature
+  flow and design priorities, and reviewed and tested the work before
+  including it. AI suggestions were treated as assistance, not as a
+  substitute for understanding or checking the implementation.
 
 
 ## Licence
@@ -297,4 +290,3 @@ happy to share.
 This project is released under the MIT licence (see `LICENSE`).
 
 Models and datasets used have their own licences, listed above.
-
