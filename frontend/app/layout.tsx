@@ -15,7 +15,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geist.variable} ${geistMono.variable}`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           {children}
         </ThemeProvider>
       </body>
